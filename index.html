@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Bầu Chọn Trực Tuyến</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .options-group {
+            margin-top: 15px;
+        }
+        .option-item {
+            background: #f8f9fa;
+            border: 2px solid #eee;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .option-item:hover {
+            border-color: #007bff;
+            background: #f1f7ff;
+        }
+        .option-item input {
+            margin-right: 15px;
+            transform: scale(1.2);
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #statusMessage {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #ffc107; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Bầu Chọn Dự Án Xuất Sắc</h2>
+    
+    <div class="form-group">
+        <label for="voterName">Họ và Tên người bình chọn:</label>
+        <input type="text" id="voterName" placeholder="Nhập tên hoặc Mã số để định danh..." required>
+    </div>
+
+    <div class="form-group">
+        <label>Chọn một trong các phương án sau:</label>
+        <div class="options-group">
+            <label class="option-item">
+                <input type="radio" name="voteOption" value="Dự Án A"> Đội A: Ứng dụng Quản lý Xanh
+            </label>
+            <label class="option-item">
+                <input type="radio" name="voteOption" value="Dự Án B"> Đội B: Thiết bị IoT Nông Nghiệp
+            </label>
+            <label class="option-item">
+                <input type="radio" name="voteOption" value="Dự Án C"> Đội C: Nền tảng Học Tập Số
+            </label>
+        </div>
+    </div>
+
+    <button onclick="submitVote()">Gửi / Thay Đổi Bình Chọn</button>
+    <div id="statusMessage"></div>
+</div>
+
+<script>
+    // Link Google Web App Script cá nhân của bạn đã được cấu hình tại đây
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxovzxOg48u8sfcE4iXX-aYWi6HZmofsgLKHsNOLOwL_blw0l48nVP59EUFrIsISFcg/exec";
+
+    function submitVote() {
+        const nameInput = document.getElementById('voterName').value.trim();
+        const selectedOption = document.querySelector('input[name="voteOption"]:checked');
+        const statusDiv = document.getElementById('statusMessage');
+
+        if (!nameInput) {
+            statusDiv.className = "error";
+            statusDiv.innerText = "Vui lòng nhập tên của bạn để định danh!";
+            return;
+        }
+        if (!selectedOption) {
+            statusDiv.className = "error";
+            statusDiv.innerText = "Vui lòng chọn 1 phương án bầu chọn!";
+            return;
+        }
+
+        statusDiv.className = "info";
+        statusDiv.innerText = "Đang gửi dữ liệu lên hệ thống...";
+
+        const payload = {
+            nguoiBinhChon: nameInput,
+            luaChon: selectedOption.value
+        };
+
+        // Gửi dữ liệu qua API Post tới Google Sheets công khai
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', 
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            statusDiv.className = "success";
+            statusDiv.innerText = `Thành công! ${nameInput} đã chọn: ${selectedOption.value}. Bạn có thể thay đổi ý kiến bất cứ lúc nào bằng cách điền đúng tên cũ và chọn phương án mới.`;
+        })
+        .catch(error => {
+            statusDiv.className = "error";
+            statusDiv.innerText = "Có lỗi xảy ra khi kết nối tới server!";
+            console.error('Error:', error);
+        });
+    }
+</script>
+
+</body>
+</html>

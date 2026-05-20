@@ -123,8 +123,8 @@
 </div>
 
 <script>
-    // Link Google Web App Script cá nhân của bạn đã được cấu hình tại đây
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxovzxOg48u8sfcE4iXX-aYWi6HZmofsgLKHsNOLOwL_blw0l48nVP59EUFrIsISFcg/exec";
+    // Đường link Web App mới nhất của bạn đã được cập nhật ở đây
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx2G7b8HoAyXbhuKJvvfhq-Vn6Tx9fv1FPiGsYtfTs6aLvnkDb6d6EpDONYT41gPGew/exec";
 
     function submitVote() {
         const nameInput = document.getElementById('voterName').value.trim();
@@ -145,23 +145,31 @@
         statusDiv.className = "info";
         statusDiv.innerText = "Đang gửi dữ liệu lên hệ thống...";
 
-        const payload = {
-            nguoiBinhChon: nameInput,
-            luaChon: selectedOption.value
+        // Đóng gói dữ liệu dạng URL-encoded gửi sang Google Sheets
+        const details = {
+            'nguoiBinhChon': nameInput,
+            'luaChon': selectedOption.value
         };
 
-        // Gửi dữ liệu qua API Post tới Google Sheets công khai
+        let formBody = [];
+        for (let property in details) {
+            let encodedKey = encodeURIComponent(property);
+            let encodedValue = encodeURIComponent(details[property]);
+            formBody.push(encodedKey + "=" + encodedValue);
+        }
+        formBody = formBody.join("&");
+
         fetch(SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', 
+            mode: 'no-cors',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
             },
-            body: JSON.stringify(payload)
+            body: formBody
         })
         .then(() => {
             statusDiv.className = "success";
-            statusDiv.innerText = `Thành công! ${nameInput} đã chọn: ${selectedOption.value}. Bạn có thể thay đổi ý kiến bất cứ lúc nào bằng cách điền đúng tên cũ và chọn phương án mới.`;
+            statusDiv.innerText = `Thành công! Dữ liệu đã được nạp vào hệ thống chủ. Bạn có thể đổi lựa chọn bất cứ lúc nào bằng cách giữ nguyên Tên.`;
         })
         .catch(error => {
             statusDiv.className = "error";

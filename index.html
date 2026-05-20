@@ -13,6 +13,8 @@
             align-items: center; 
             min-height: 100vh; 
             margin: 0; 
+            padding: 20px;
+            box-sizing: border-box;
         }
         .container { 
             background: white; 
@@ -20,7 +22,7 @@
             border-radius: 12px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
             width: 100%; 
-            max-width: 450px; 
+            max-width: 500px; 
         }
         h2 { text-align: center; color: #333; margin-bottom: 25px; }
         .form-group { margin-bottom: 20px; }
@@ -58,7 +60,6 @@
             font-weight: bold; 
             cursor: pointer; 
             margin-top: 15px; 
-            transition: background 0.2s; 
         }
         button:hover { background: #0056b3; }
         #statusMessage { margin-top: 15px; text-align: center; font-weight: 600; }
@@ -66,51 +67,33 @@
         .error { color: #dc3545; }
         .info { color: #ffc107; }
         
-        /* NÚT ADMIN MỚI CÓ KÝ HIỆU RÕ RÀNG HƠN */
         .admin-btn { 
-            position: fixed; 
-            bottom: 20px; 
-            right: 20px; 
-            background: #495057; 
-            color: white; 
-            padding: 10px 15px; 
-            border-radius: 30px; 
-            font-size: 14px; 
-            font-weight: bold;
-            cursor: pointer; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            user-select: none;
-            transition: transform 0.2s, background 0.2s;
+            position: fixed; bottom: 20px; right: 20px; background: #495057; color: white; 
+            padding: 10px 15px; border-radius: 30px; font-size: 14px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 6px;
+            user-select: none; transition: transform 0.2s, background 0.2s;
         }
-        .admin-btn:hover { 
-            background: #212529;
-            transform: scale(1.05);
-        }
+        .admin-btn:hover { background: #212529; transform: scale(1.05); }
         
-        /* Khu vực điều khiển của Admin */
+        /* KHU VỰC ĐIỀU KHIỂN CỦA ADMIN */
         #adminPanel { 
-            display: none; 
-            margin-top: 25px; 
-            border-top: 2px dashed #bbb; 
-            padding-top: 15px; 
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 8px;
+            display: none; margin-top: 25px; border-top: 3px dashed #6c757d; 
+            padding-top: 20px; background: #f8f9fa; padding: 20px; border-radius: 8px;
         }
-        #adminPanel h4 { margin: 0 0 10px 0; color: #856404; }
-        #newOptionsInput {
-            width: 100%;
-            height: 70px;
-            padding: 8px;
-            border: 1px solid #ffeeba;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-family: inherit;
-            resize: vertical;
+        #adminPanel h3 { margin-top: 20px; margin-bottom: 10px; color: #212529; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
+        #adminPanel h3:first-child { margin-top: 0; }
+        #newOptionsInput { width: 100%; height: 60px; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; font-family: inherit; resize: vertical; }
+        
+        /* Các bảng dữ liệu trong Admin */
+        .admin-table {
+            width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 14px;
         }
+        .admin-table th, .admin-table td {
+            border: 1px solid #dee2e6; padding: 10px; text-align: left;
+        }
+        .admin-table th { background-color: #e9ecef; color: #495057; }
+        .progress-bar-container { background-color: #e9ecef; border-radius: 4px; height: 12px; width: 100%; overflow: hidden; margin-top: 5px; }
+        .progress-bar { background-color: #28a745; height: 100%; width: 0%; transition: width 0.5s; }
     </style>
 </head>
 <body>
@@ -134,14 +117,25 @@
     <div id="statusMessage"></div>
 
     <div id="adminPanel">
-        <h4>Bảng Điều Khiển Admin</h4>
-        <label style="font-size: 13px; font-weight: normal; margin-bottom: 5px;">
-            Nhập các phương án mới, cách nhau bằng <strong>dấu phẩy (,)</strong>:
-        </label>
-        <textarea id="newOptionsInput" placeholder="Ví dụ: Đội 1, Đội 2, Đội 3"></textarea>
-        <button style="background: #28a745; margin-top: 10px; padding: 10px;" onclick="updateOptions()">
-            Xác Nhận Cập Nhật Cột Phương Án
-        </button>
+        <h3>📊 Thống Kê Kết Quả</h3>
+        <div id="statResults">Đang tính toán tỉ lệ...</div>
+
+        <h3>👥 Danh Sách Người Bình Chọn</h3>
+        <div style="max-height: 200px; overflow-y: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr><th>Người bình chọn</th><th>Lựa chọn</th></tr>
+                </thead>
+                <tbody id="voterListBody">
+                    <tr><td colspan="2" style="text-align:center; color:#999;">Chưa có dữ liệu</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>⚙️ Thiết Lập Phương Án</h3>
+        <label style="font-size: 13px; font-weight: normal; margin-bottom: 5px; display:block;">Các phương án cách nhau bằng <strong>dấu phẩy (,)</strong>:</label>
+        <textarea id="newOptionsInput"></textarea>
+        <button style="background: #28a745; margin-top: 10px; padding: 10px;" onclick="updateOptions()">Cập Nhật Cột Phương Án</button>
     </div>
 </div>
 
@@ -150,22 +144,25 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUIm1NtfTHlxDqKQQGdv2JOHFz0Weab7qlLHWZQL6dVcQXmBjLw5svJUmsphuPnzPL/exec";
+    // URL mới cập nhật của bạn
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxryUgSJVCKJI9zmv4QmPqeujBgKGCvxNhIubXkVPMC5OXTH_av2CoQV7nDBDEI2mU5/exec";
+    
+    let globalData = { options: [], votes: [] };
 
-    // 1. Tự động tải danh sách phương án từ sheet "Options" khi mở trang web
+    // 1. Tải danh sách phương án và dữ liệu vote từ máy chủ
     async function loadOptions() {
         try {
             const response = await fetch(SCRIPT_URL);
-            const options = await response.json();
-            const area = document.getElementById('optionsArea');
+            globalData = await response.json();
             
-            if(options.length === 0 || (options.length === 1 && options[0] === "")) {
+            const area = document.getElementById('optionsArea');
+            if(globalData.options.length === 0 || (globalData.options.length === 1 && globalData.options[0] === "")) {
                 area.innerHTML = "<p style='color:red;'>Chưa có phương án nào. Hãy bấm Quản lý để thêm!</p>";
                 return;
             }
             
             area.innerHTML = "";
-            options.forEach(opt => {
+            globalData.options.forEach(opt => {
                 if(opt.trim() !== "") {
                     area.innerHTML += `
                         <label class="option-item">
@@ -173,16 +170,20 @@
                         </label>`;
                 }
             });
-            document.getElementById('newOptionsInput').value = options.join(", ");
+            document.getElementById('newOptionsInput').value = globalData.options.join(", ");
+            
+            // Nếu bảng điều khiển admin đang mở, cập nhật luôn dữ liệu mới
+            if(document.getElementById('adminPanel').style.display === "block") {
+                buildAdminDashboard();
+            }
         } catch (e) {
             document.getElementById('optionsArea').innerHTML = "<p style='color:red;'>Lỗi kết nối máy chủ không thể tải dữ liệu!</p>";
-            console.error(e);
         }
     }
     
     loadOptions();
 
-    // 2. Hàm xử lý gửi hoặc thay đổi bình chọn
+    // 2. Xử lý gửi bình chọn
     function submitVote() {
         const nameInput = document.getElementById('voterName').value.trim();
         const selectedOption = document.querySelector('input[name="voteOption"]:checked');
@@ -211,6 +212,7 @@
         .then(() => {
             statusDiv.className = "success";
             statusDiv.innerText = `Thành công! Hệ thống đã ghi nhận lựa chọn của bạn.`;
+            loadOptions(); // Tải lại dữ liệu ngầm để cập nhật số liệu
         })
         .catch(error => {
             statusDiv.className = "error";
@@ -218,25 +220,68 @@
         });
     }
 
-    // 3. Hàm kích hoạt giao diện Admin bằng mật khẩu
+    // 3. Hàm mở quyền Admin bằng mật khẩu
     function openAdmin() {
         const password = prompt("Nhập mật khẩu để truy cập quyền Admin:");
         if (password === "khang22042016") {
             document.getElementById('adminPanel').style.display = "block";
-            alert("Mật khẩu chính xác. Chào Admin Khang!");
+            buildAdminDashboard();
+            alert("Mật khẩu chính xác. Đã hiển thị bảng thống kê!");
         } else if (password !== null) {
-            alert("Sai mật khẩu! Bạn không có quyền chỉnh sửa.");
+            alert("Sai mật khẩu! Bạn không có quyền truy cập.");
         }
     }
 
-    // 4. Hàm Admin gửi danh sách phương án mới về máy chủ
+    // Hàm tự động xử lý và render biểu đồ % cùng danh sách người bầu chọn
+    function buildAdminDashboard() {
+        const totalVotes = globalData.votes.length;
+        
+        // --- Tính toán tỉ lệ phần trăm ---
+        let countMap = {};
+        globalData.options.forEach(opt => countMap[opt] = 0);
+        globalData.votes.forEach(v => {
+            if (countMap[v.choice] !== undefined) countMap[v.choice]++;
+        });
+
+        let statHTML = `<p><strong>Tổng số phiếu hiện tại:</strong> ${totalVotes} phiếu</p>`;
+        globalData.options.forEach(opt => {
+            const count = countMap[opt] || 0;
+            const percent = totalVotes > 0 ? ((count / totalVotes) * 100).toFixed(1) : 0;
+            statHTML += `
+                <div style="margin-bottom: 12px;">
+                    <div style="display:flex; justify-content:space-between; font-size:14px;">
+                        <span><strong>${opt}</strong></span>
+                        <span>${count} phiếu (${percent}%)</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${percent}%;"></div>
+                    </div>
+                </div>`;
+        });
+        document.getElementById('statResults').innerHTML = statHTML;
+
+        // --- Tạo bảng danh sách chi tiết ---
+        const tbody = document.getElementById('voterListBody');
+        if (globalData.votes.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#999;">Chưa có ai bình chọn</td></tr>`;
+        } else {
+            tbody.innerHTML = globalData.votes.map(v => `
+                <tr>
+                    <td><strong>${v.name}</strong></td>
+                    <td><span style="color:#007bff; font-weight:600;">${v.choice}</span></td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    // 4. Admin cập nhật phương án mới
     function updateOptions() {
         const dataInput = document.getElementById('newOptionsInput').value.trim();
-        if (!confirm("Bạn có chắc chắn muốn thay đổi/thêm các phương án này không?")) return;
+        if (!confirm("Bạn có chắc chắn muốn thay đổi toàn bộ danh sách phương án không?")) return;
 
         const statusDiv = document.getElementById('statusMessage');
         statusDiv.className = "info";
-        statusDiv.innerText = "Admin đang cập nhật danh sách phương án mới...";
+        statusDiv.innerText = "Admin đang cập nhật phương án...";
 
         fetch(SCRIPT_URL, {
             method: 'POST',
@@ -245,12 +290,11 @@
             body: `data=${encodeURIComponent(dataInput)}&action=updateOptions`
         })
         .then(() => {
-            alert("Cập nhật thành công! Trang web sẽ tự làm mới.");
+            alert("Cập nhật thành công! Trang web đang tải lại dữ liệu.");
             location.reload();
         })
         .catch(error => {
-            statusDiv.className = "error";
-            statusDiv.innerText = "Lỗi khi cập nhật phương án Admin!";
+            alert("Lỗi khi cập nhật!");
         });
     }
 </script>

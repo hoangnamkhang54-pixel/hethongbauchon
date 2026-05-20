@@ -66,22 +66,29 @@
         .error { color: #dc3545; }
         .info { color: #ffc107; }
         
-        /* CSS cho nút Admin ẩn góc phải dưới */
+        /* NÚT ADMIN MỚI CÓ KÝ HIỆU RÕ RÀNG HƠN */
         .admin-btn { 
             position: fixed; 
-            bottom: 15px; 
-            right: 15px; 
-            background: #6c757d; 
+            bottom: 20px; 
+            right: 20px; 
+            background: #495057; 
             color: white; 
-            padding: 6px 12px; 
-            border-radius: 20px; 
-            font-size: 11px; 
+            padding: 10px 15px; 
+            border-radius: 30px; 
+            font-size: 14px; 
+            font-weight: bold;
             cursor: pointer; 
-            opacity: 0.3; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
             user-select: none;
-            transition: opacity 0.2s;
+            transition: transform 0.2s, background 0.2s;
         }
-        .admin-btn:hover { opacity: 1; }
+        .admin-btn:hover { 
+            background: #212529;
+            transform: scale(1.05);
+        }
         
         /* Khu vực điều khiển của Admin */
         #adminPanel { 
@@ -138,10 +145,11 @@
     </div>
 </div>
 
-<div class="admin-btn" onclick="openAdmin()">Admin</div>
+<div class="admin-btn" onclick="openAdmin()">
+    <span>⚙️</span> Quản lý
+</div>
 
 <script>
-    // Link Web App mới nhất đã đồng bộ
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUIm1NtfTHlxDqKQQGdv2JOHFz0Weab7qlLHWZQL6dVcQXmBjLw5svJUmsphuPnzPL/exec";
 
     // 1. Tự động tải danh sách phương án từ sheet "Options" khi mở trang web
@@ -152,7 +160,7 @@
             const area = document.getElementById('optionsArea');
             
             if(options.length === 0 || (options.length === 1 && options[0] === "")) {
-                area.innerHTML = "<p style='color:red;'>Chưa có phương án nào. Hãy bấm Admin để thêm!</p>";
+                area.innerHTML = "<p style='color:red;'>Chưa có phương án nào. Hãy bấm Quản lý để thêm!</p>";
                 return;
             }
             
@@ -165,7 +173,6 @@
                         </label>`;
                 }
             });
-            // Hiển thị sẵn danh sách cũ vào ô nhập liệu của admin
             document.getElementById('newOptionsInput').value = options.join(", ");
         } catch (e) {
             document.getElementById('optionsArea').innerHTML = "<p style='color:red;'>Lỗi kết nối máy chủ không thể tải dữ liệu!</p>";
@@ -173,7 +180,6 @@
         }
     }
     
-    // Chạy tải dữ liệu ngay khi tải xong trang
     loadOptions();
 
     // 2. Hàm xử lý gửi hoặc thay đổi bình chọn

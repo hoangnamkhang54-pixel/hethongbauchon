@@ -5,98 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống Bầu Chọn Trực Tuyến</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f4f6f9; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
         }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 450px;
+        .container { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 450px; 
         }
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 25px;
+        h2 { text-align: center; color: #333; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+        input[type="text"] { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
         }
-        .form-group {
-            margin-bottom: 20px;
+        .options-group { margin-top: 15px; }
+        .option-item { 
+            background: #f8f9fa; 
+            border: 2px solid #eee; 
+            padding: 12px; 
+            margin-bottom: 10px; 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
+        .option-item:hover { border-color: #007bff; background: #f1f7ff; }
+        .option-item input { margin-right: 15px; transform: scale(1.2); }
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            transition: background 0.2s; 
         }
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        .options-group {
-            margin-top: 15px;
-        }
-        .option-item {
-            background: #f8f9fa;
-            border: 2px solid #eee;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .option-item:hover {
-            border-color: #007bff;
-            background: #f1f7ff;
-        }
-        .option-item input {
-            margin-right: 15px;
-            transform: scale(1.2);
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: background 0.2s;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        #statusMessage {
-            margin-top: 15px;
-            text-align: center;
-            font-weight: 600;
-        }
+        button:hover { background: #0056b3; }
+        #statusMessage { margin-top: 15px; text-align: center; font-weight: 600; }
         .success { color: #28a745; }
         .error { color: #dc3545; }
         .info { color: #ffc107; }
+        
+        /* CSS cho nút Admin ẩn góc phải dưới */
+        .admin-btn { 
+            position: fixed; 
+            bottom: 15px; 
+            right: 15px; 
+            background: #6c757d; 
+            color: white; 
+            padding: 6px 12px; 
+            border-radius: 20px; 
+            font-size: 11px; 
+            cursor: pointer; 
+            opacity: 0.3; 
+            user-select: none;
+            transition: opacity 0.2s;
+        }
+        .admin-btn:hover { opacity: 1; }
+        
+        /* Khu vực điều khiển của Admin */
+        #adminPanel { 
+            display: none; 
+            margin-top: 25px; 
+            border-top: 2px dashed #bbb; 
+            padding-top: 15px; 
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        #adminPanel h4 { margin: 0 0 10px 0; color: #856404; }
+        #newOptionsInput {
+            width: 100%;
+            height: 70px;
+            padding: 8px;
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+            resize: vertical;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Bầu Chọn Dự Án Xuất Sắc</h2>
+    <h2>Hệ Thống Bầu Chọn Trực Tuyến</h2>
     
     <div class="form-group">
         <label for="voterName">Họ và Tên người bình chọn:</label>
@@ -105,27 +118,65 @@
 
     <div class="form-group">
         <label>Chọn một trong các phương án sau:</label>
-        <div class="options-group">
-            <label class="option-item">
-                <input type="radio" name="voteOption" value="Dự Án A"> Đội A: Ứng dụng Quản lý Xanh
-            </label>
-            <label class="option-item">
-                <input type="radio" name="voteOption" value="Dự Án B"> Đội B: Thiết bị IoT Nông Nghiệp
-            </label>
-            <label class="option-item">
-                <input type="radio" name="voteOption" value="Dự Án C"> Đội C: Nền tảng Học Tập Số
-            </label>
+        <div class="options-group" id="optionsArea">
+            <p style="color: #666; font-style: italic;">Đang tải danh sách phương án từ máy chủ...</p>
         </div>
     </div>
 
     <button onclick="submitVote()">Gửi / Thay Đổi Bình Chọn</button>
     <div id="statusMessage"></div>
+
+    <div id="adminPanel">
+        <h4>Bảng Điều Khiển Admin</h4>
+        <label style="font-size: 13px; font-weight: normal; margin-bottom: 5px;">
+            Nhập các phương án mới, cách nhau bằng <strong>dấu phẩy (,)</strong>:
+        </label>
+        <textarea id="newOptionsInput" placeholder="Ví dụ: Đội 1, Đội 2, Đội 3"></textarea>
+        <button style="background: #28a745; margin-top: 10px; padding: 10px;" onclick="updateOptions()">
+            Xác Nhận Cập Nhật Cột Phương Án
+        </button>
+    </div>
 </div>
 
-<script>
-    // Đường link Web App mới nhất của bạn đã được cập nhật ở đây
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx2G7b8HoAyXbhuKJvvfhq-Vn6Tx9fv1FPiGsYtfTs6aLvnkDb6d6EpDONYT41gPGew/exec";
+<div class="admin-btn" onclick="openAdmin()">Admin</div>
 
+<script>
+    // Link Web App mới nhất đã đồng bộ
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUIm1NtfTHlxDqKQQGdv2JOHFz0Weab7qlLHWZQL6dVcQXmBjLw5svJUmsphuPnzPL/exec";
+
+    // 1. Tự động tải danh sách phương án từ sheet "Options" khi mở trang web
+    async function loadOptions() {
+        try {
+            const response = await fetch(SCRIPT_URL);
+            const options = await response.json();
+            const area = document.getElementById('optionsArea');
+            
+            if(options.length === 0 || (options.length === 1 && options[0] === "")) {
+                area.innerHTML = "<p style='color:red;'>Chưa có phương án nào. Hãy bấm Admin để thêm!</p>";
+                return;
+            }
+            
+            area.innerHTML = "";
+            options.forEach(opt => {
+                if(opt.trim() !== "") {
+                    area.innerHTML += `
+                        <label class="option-item">
+                            <input type="radio" name="voteOption" value="${opt}"> ${opt}
+                        </label>`;
+                }
+            });
+            // Hiển thị sẵn danh sách cũ vào ô nhập liệu của admin
+            document.getElementById('newOptionsInput').value = options.join(", ");
+        } catch (e) {
+            document.getElementById('optionsArea').innerHTML = "<p style='color:red;'>Lỗi kết nối máy chủ không thể tải dữ liệu!</p>";
+            console.error(e);
+        }
+    }
+    
+    // Chạy tải dữ liệu ngay khi tải xong trang
+    loadOptions();
+
+    // 2. Hàm xử lý gửi hoặc thay đổi bình chọn
     function submitVote() {
         const nameInput = document.getElementById('voterName').value.trim();
         const selectedOption = document.querySelector('input[name="voteOption"]:checked');
@@ -138,43 +189,62 @@
         }
         if (!selectedOption) {
             statusDiv.className = "error";
-            statusDiv.innerText = "Vui lòng chọn 1 phương án bầu chọn!";
+            statusDiv.innerText = "Vui lòng chọn 1 phương án!";
             return;
         }
 
         statusDiv.className = "info";
         statusDiv.innerText = "Đang gửi dữ liệu lên hệ thống...";
 
-        // Đóng gói dữ liệu dạng URL-encoded gửi sang Google Sheets
-        const details = {
-            'nguoiBinhChon': nameInput,
-            'luaChon': selectedOption.value
-        };
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `nguoiBinhChon=${encodeURIComponent(nameInput)}&luaChon=${encodeURIComponent(selectedOption.value)}&action=vote`
+        })
+        .then(() => {
+            statusDiv.className = "success";
+            statusDiv.innerText = `Thành công! Hệ thống đã ghi nhận lựa chọn của bạn.`;
+        })
+        .catch(error => {
+            statusDiv.className = "error";
+            statusDiv.innerText = "Lỗi kết nối hệ thống!";
+        });
+    }
 
-        let formBody = [];
-        for (let property in details) {
-            let encodedKey = encodeURIComponent(property);
-            let encodedValue = encodeURIComponent(details[property]);
-            formBody.push(encodedKey + "=" + encodedValue);
+    // 3. Hàm kích hoạt giao diện Admin bằng mật khẩu
+    function openAdmin() {
+        const password = prompt("Nhập mật khẩu để truy cập quyền Admin:");
+        if (password === "khang22042016") {
+            document.getElementById('adminPanel').style.display = "block";
+            alert("Mật khẩu chính xác. Chào Admin Khang!");
+        } else if (password !== null) {
+            alert("Sai mật khẩu! Bạn không có quyền chỉnh sửa.");
         }
-        formBody = formBody.join("&");
+    }
+
+    // 4. Hàm Admin gửi danh sách phương án mới về máy chủ
+    function updateOptions() {
+        const dataInput = document.getElementById('newOptionsInput').value.trim();
+        if (!confirm("Bạn có chắc chắn muốn thay đổi/thêm các phương án này không?")) return;
+
+        const statusDiv = document.getElementById('statusMessage');
+        statusDiv.className = "info";
+        statusDiv.innerText = "Admin đang cập nhật danh sách phương án mới...";
 
         fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-            },
-            body: formBody
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `data=${encodeURIComponent(dataInput)}&action=updateOptions`
         })
         .then(() => {
-            statusDiv.className = "success";
-            statusDiv.innerText = `Thành công! Dữ liệu đã được nạp vào hệ thống chủ. Bạn có thể đổi lựa chọn bất cứ lúc nào bằng cách giữ nguyên Tên.`;
+            alert("Cập nhật thành công! Trang web sẽ tự làm mới.");
+            location.reload();
         })
         .catch(error => {
             statusDiv.className = "error";
-            statusDiv.innerText = "Có lỗi xảy ra khi kết nối tới server!";
-            console.error('Error:', error);
+            statusDiv.innerText = "Lỗi khi cập nhật phương án Admin!";
         });
     }
 </script>

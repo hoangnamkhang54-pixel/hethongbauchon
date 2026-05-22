@@ -107,7 +107,7 @@
 
 <div class="container">
     <h2>Hệ Thống Bầu Chọn Trực Tuyến</h2>
-    <div id="displayTopic">Đang tải chủ đề cuộc bình chọn đợi chút nha</div>
+    <div id="displayTopic">Đang tải chủ đề cuộc bình chọn đợi tí nha</div>
     
     <div class="form-group">
         <label for="voterName">Họ và Tên người bình chọn:</label>
@@ -117,7 +117,7 @@
     <div class="form-group">
         <label>Chọn một trong các phương án sau:</label>
         <div class="options-group" id="optionsArea">
-            <p style="color: #666; font-style: italic;">Đang tải danh sách phương án từ máy chủ đợi chút nha</p>
+            <p style="color: #666; font-style: italic;">Đang tải danh sách phương án từ máy chủ đợi tí nha</p>
         </div>
     </div>
 
@@ -125,6 +125,8 @@
     <div id="statusMessage"></div>
 
     <div id="adminPanel">
+        <button style="background: #6c757d; margin-top: 0; margin-bottom: 15px; padding: 8px;" onclick="closeAdmin()">❌ Đăng Xuất Khỏi Admin</button>
+
         <h3>📝 Thay Đổi Chủ Đề (Lưu tại trang Topics)</h3>
         <input type="text" id="topicInput" placeholder="Ví dụ: Bầu chọn dự án lớp học...">
         <button style="background: #17a2b8; margin-top: 10px; padding: 10px;" onclick="updateTopic()">Xác Nhận Đổi Chủ Đề</button>
@@ -157,22 +159,19 @@
 </div>
 
 <script>
-    // URL Web App mới nhất bạn vừa gửi
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHvBGraQZ8dXUrBdu5Ed8a88XwEJ-7RzpCMn7ouB3ZQ5BLxAaq6BxjvJu8NxySaNC2/exec";
     
     let globalData = { options: [], votes: [], topic: "" };
 
-    // 1. Tải toàn bộ dữ liệu (Phương án, phiếu bầu, chủ đề)
+    // 1. Tải toàn bộ dữ liệu
     async function loadData() {
         try {
             const response = await fetch(SCRIPT_URL);
             globalData = await response.json();
             
-            // Cập nhật chủ đề lên màn hình chính
             document.getElementById('displayTopic').innerText = "📌 " + globalData.topic;
             document.getElementById('topicInput').value = globalData.topic;
             
-            // Cập nhật danh sách phương án lựa chọn
             const area = document.getElementById('optionsArea');
             if(globalData.options.length === 0 || (globalData.options.length === 1 && globalData.options[0] === "")) {
                 area.innerHTML = "<p style='color:red;'>Chưa có phương án nào. Hãy bấm Quản lý để thêm!</p>";
@@ -190,7 +189,9 @@
             });
             document.getElementById('newOptionsInput').value = globalData.options.join(", ");
             
-            if(document.getElementById('adminPanel').style.display === "block") {
+            // ĐOẠN KIỂM TRA: Nếu bộ nhớ trình duyệt ghi nhận đã đăng nhập Admin thì tự mở luôn không cần hỏi mật khẩu
+            if (sessionStorage.getItem("isAdmin") === "true") {
+                document.getElementById('adminPanel').style.display = "block";
                 buildAdminDashboard();
             }
         } catch (e) {
@@ -200,7 +201,7 @@
     
     loadData();
 
-    // 2. Gửi lệnh cập nhật Chủ đề mới lên sheet Topics
+    // 2. Gửi lệnh cập nhật Chủ đề mới
     function updateTopic() {
         const newTop = document.getElementById('topicInput').value.trim();
         if(!newTop) return alert("Vui lòng gõ chủ đề!");
@@ -215,7 +216,7 @@
         })
         .then(() => {
             alert("Cập nhật chủ đề thành công!");
-            location.reload();
+            location.reload(); // Khi reload, sessionStorage vẫn giữ trạng thái Admin đăng nhập
         })
         .catch(() => alert("Lỗi khi đổi chủ đề!"));
     }
@@ -252,15 +253,31 @@
         });
     }
 
-    // 4. Mở quyền quản lý Admin
+    // 4. Vào Admin (Có kiểm tra trạng thái cũ)
     function openAdmin() {
+        if (sessionStorage.getItem("isAdmin") === "true") {
+            document.getElementById('adminPanel').style.display = "block";
+            buildAdminDashboard();
+            return;
+        }
+
         const password = prompt("Nhập mật khẩu truy cập Admin:");
         if (password === "khang22042016") {
+            sessionStorage.setItem("isAdmin", "true"); // Lưu trạng thái đăng nhập vào trình duyệt
             document.getElementById('adminPanel').style.display = "block";
             buildAdminDashboard();
             alert("Xác thực thành công!");
         } else if (password !== null) {
             alert("Mật khẩu không đúng!");
+        }
+    }
+
+    // NÚT THOÁT ADMIN CHỦ ĐỘNG
+    function closeAdmin() {
+        if (confirm("Bạn có chắc chắn muốn đăng xuất và đóng bảng điều khiển Admin không?")) {
+            sessionStorage.removeItem("isAdmin"); // Xóa hẳn trạng thái đăng nhập
+            document.getElementById('adminPanel').style.display = "none";
+            alert("Đã đăng xuất Admin thành công.");
         }
     }
 
@@ -316,7 +333,7 @@
         })
         .then(() => {
             alert("Cập nhật phương án thành công!");
-            location.reload();
+            location.reload(); // Reload xong vẫn giữ chế độ Admin
         });
     }
 
@@ -330,7 +347,7 @@
         })
         .then(() => {
             alert("Đã xóa sạch phiếu bầu!");
-            location.reload();
+            location.reload(); // Reload xong vẫn giữ chế độ Admin
         });
     }
 </script>

@@ -318,8 +318,22 @@
 
     function updateOptions() {
         const dataInput = document.getElementById('newOptionsInput').value.trim();
+        if (!dataInput) return alert("Vui lòng nhập phương án trước khi lưu!");
         if (!confirm("Xác nhận thay đổi danh sách phương án?")) return;
 
+        // ÉP CHUYỂN DỮ LIỆU LÊN URL ĐỂ GOOGLE APPS SCRIPT ĐỌC ĐƯỢC CHUẨN 100%
+        const targetUrl = `${SCRIPT_URL}?action=updateOptions&data=${encodeURIComponent(dataInput)}`;
+
+        fetch(targetUrl, {
+            method: 'POST',
+            mode: 'no-cors'
+        })
+        .then(() => {
+            alert("Cập nhật phương án thành công! Hệ thống đang làm mới trang.");
+            location.reload();
+        })
+        .catch(err => alert("Lỗi kết nối khi gửi dữ liệu: " + err));
+    }
         fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',

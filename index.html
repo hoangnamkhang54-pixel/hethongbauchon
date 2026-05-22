@@ -158,26 +158,28 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwvn868Yji-sE203cx4bc2c_TmSYDZmT7zoP5diMkOKjdmEWJMqwZLj2Hx7ZjA81U-Rog/exec";
+    // Đã cập nhật liên kết Web App mới của bạn
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxasDLbu9t7tMWdoqrtdEHX9cFNcyTsRPZBhoq7KzrvTyKfXJsnk4rgRwFtVy0xTIlmEQ/exec";
     
     let globalData = { options: [], votes: [], topic: "" };
 
     async function loadData() {
         try {
-            const response = await fetch(SCRIPT_URL);
+            // Thêm mốc thời gian ngẫu nhiên để chống bị trình duyệt cache dữ liệu cũ
+            const response = await fetch(`${SCRIPT_URL}?nocache=${new Date().getTime()}`);
             globalData = await response.json();
             
             document.getElementById('displayTopic').innerText = "📌 " + (globalData.topic || "Chưa có chủ đề");
             document.getElementById('topicInput').value = globalData.topic || "";
             
             const area = document.getElementById('optionsArea');
-            if(!globalData.options || globalData.options.length === 0 || (globalData.options.length === 1 && globalData.options[0] === "")) {
+            if(!globalData.options || globalData.options.length === 0) {
                 area.innerHTML = "<p style='color:#666; font-style: italic;'>Chưa có phương án nào. Hãy vào bảng Quản lý để thiết lập!</p>";
                 document.getElementById('newOptionsInput').value = "";
             } else {
                 area.innerHTML = "";
                 globalData.options.forEach(opt => {
-                    if(opt && opt.toString().trim() !== "") {
+                    if(opt) {
                         area.innerHTML += `
                             <label class="option-item">
                                 <input type="radio" name="voteOption" value="${opt}"> ${opt}
@@ -202,17 +204,15 @@
         const newTop = document.getElementById('topicInput').value.trim();
         if(!newTop) return alert("Vui lòng gõ chủ đề!");
         
-        const statusDiv = document.getElementById('statusMessage');
-        statusDiv.className = "info";
-        statusDiv.innerText = "Đang lưu chủ đề mới...";
+        document.getElementById('statusMessage').className = "info";
+        document.getElementById('statusMessage').innerText = "Đang lưu chủ đề mới...";
 
-        const targetUrl = `${SCRIPT_URL}?action=updateTopic&topic=${encodeURIComponent(newTop)}`;
-        fetch(targetUrl, { method: 'POST', mode: 'no-cors' })
+        fetch(`${SCRIPT_URL}?action=updateTopic&topic=${encodeURIComponent(newTop)}&nocache=${new Date().getTime()}`)
         .then(() => {
             alert("Cập nhật chủ đề thành công!");
             location.reload();
         })
-        .catch(() => alert("Lỗi khi kết nối gửi dữ liệu đổi chủ đề!"));
+        .catch(() => alert("Có lỗi xảy ra khi kết nối hệ thống!"));
     }
 
     function submitVote() {
@@ -229,19 +229,15 @@
         statusDiv.className = "info";
         statusDiv.innerText = "Đang gửi dữ liệu lên hệ thống...";
 
-        const targetUrl = `${SCRIPT_URL}?action=vote&nguoiBinhChon=${encodeURIComponent(nameInput)}&luaChon=${encodeURIComponent(selectedOption.value)}`;
-        
-        fetch(targetUrl, { method: 'POST', mode: 'no-cors' })
+        fetch(`${SCRIPT_URL}?action=vote&nguoiBinhChon=${encodeURIComponent(nameInput)}&luaChon=${encodeURIComponent(selectedOption.value)}&nocache=${new Date().getTime()}`)
         .then(() => {
             statusDiv.className = "success";
             statusDiv.innerText = `Thành công! Hệ thống đã ghi nhận lựa chọn của bạn.`;
-            setTimeout(() => {
-                location.reload();
-            }, 1200);
+            setTimeout(() => { location.reload(); }, 1200);
         })
         .catch(() => {
             statusDiv.className = "error";
-            statusDiv.innerText = "Lỗi kết nối hệ thống không thể vote!";
+            statusDiv.innerText = "Lỗi kết nối hệ thống không thể bầu chọn!";
         });
     }
 
@@ -251,7 +247,6 @@
             buildAdminDashboard();
             return;
         }
-
         const password = prompt("Nhập mật khẩu truy cập Admin:");
         if (password === "khang22042016") {
             sessionStorage.setItem("isAdmin", "true");
@@ -274,17 +269,15 @@
     function buildAdminDashboard() {
         const totalVotes = globalData.votes.length;
         let countMap = {};
-        
         if(globalData.options) {
             globalData.options.forEach(opt => { if(opt) countMap[opt] = 0; });
         }
-        
         globalData.votes.forEach(v => {
             if (countMap[v.choice] !== undefined) countMap[v.choice]++;
         });
 
         let statHTML = `<p><strong>Tổng số phiếu hiện tại:</strong> ${totalVotes} phiếu</p>`;
-        if(globalData.options && globalData.options.length > 0 && globalData.options[0] !== "") {
+        if(globalData.options && globalData.options.length > 0) {
             globalData.options.forEach(opt => {
                 if(opt) {
                     const count = countMap[opt] || 0;
@@ -319,28 +312,26 @@
 
     function updateOptions() {
         const dataInput = document.getElementById('newOptionsInput').value.trim();
-        const msg = dataInput === "" ? "Bạn đang để trống. Xác nhận XÓA SẠCH toàn bộ phương án hiện tại?" : "Xác nhận thay đổi danh sách phương án?";
+        const msg = dataInput === "" ? "Xác nhận XÓA SẠCH toàn bộ phương án hiện tại?" : "Xác nhận thay đổi danh sách phương án?";
         if (!confirm(msg)) return;
 
-        const targetUrl = `${SCRIPT_URL}?action=updateOptions&data=${encodeURIComponent(dataInput)}`;
-        fetch(targetUrl, { method: 'POST', mode: 'no-cors' })
+        fetch(`${SCRIPT_URL}?action=updateOptions&data=${encodeURIComponent(dataInput)}&nocache=${new Date().getTime()}`)
         .then(() => {
-            alert("Cập nhật phương án thành công!");
+            alert("Thao tác danh sách phương án thành công!");
             location.reload();
         })
-        .catch(err => alert("Lỗi kết nối khi gửi dữ liệu phương án: " + err));
+        .catch(() => alert("Có lỗi xảy ra khi kết nối máy chủ!"));
     }
 
     function clearAllVotes() {
-        if (!confirm("🚨 CẢNH BÁO: Bạn có chắc chắn muốn XÓA SẠCH toàn bộ danh sách người đã bầu chọn không? Dữ liệu trên file Sheets sẽ biến mất hoàn toàn!")) return;
+        if (!confirm("🚨 CẢNH BÁO: Bạn có chắc chắn muốn XÓA SẠCH toàn bộ danh sách người bầu chọn?")) return;
         
-        const targetUrl = `${SCRIPT_URL}?action=clearVotes`;
-        fetch(targetUrl, { method: 'POST', mode: 'no-cors' })
+        fetch(`${SCRIPT_URL}?action=clearVotes&nocache=${new Date().getTime()}`)
         .then(() => {
-            alert("Đã xóa sạch danh sách người bầu chọn thành công!");
+            alert("Đã dọn dẹp sạch danh sách người bầu chọn!");
             location.reload();
         })
-        .catch(err => alert("Lỗi kết nối khi gửi lệnh xóa: " + err));
+        .catch(() => alert("Có lỗi xảy ra khi thực hiện lệnh xóa!"));
     }
 </script>
 

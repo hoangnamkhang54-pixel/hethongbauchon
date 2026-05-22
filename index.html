@@ -173,7 +173,7 @@ textarea{resize:vertical;min-height:110px}
     <div class="card">
       <div class="card-title">🔐 Xác thực quản trị</div>
       <label>Mật khẩu admin</label>
-      <input type="password" id="adminPass" placeholder="Nhập mật khẩu…"
+      <input type="password" id="adminPass" placeholder="Nhập mật khẩu…" autocomplete="new-password"
              onkeydown="if(event.key==='Enter') adminLogin()"/>
       <div id="adminLoginAlert" class="alert"></div>
       <button class="btn btn-primary" onclick="adminLogin()">Đăng nhập</button>
@@ -445,10 +445,8 @@ async function loadVoterList() {
   load.textContent = "Đang tải…";
   try {
     var res = await api({action:"getStats", detail:"1"});
-    // getStats doesn't return names; call a helper we'll piggyback via getVoters
-    var res2 = await api({action:"getVoters", pass:_adminPass});
-    if (res2.error) throw new Error(res2.error);
-    renderVoterList(res2.voters || []);
+    if (res.error) throw new Error(res.error);
+    renderVoterList(res.voters || []);
   } catch(err) {
     load.textContent = "⚠ "+err.message;
   }

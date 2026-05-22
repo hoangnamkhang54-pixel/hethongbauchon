@@ -159,8 +159,8 @@
 </div>
 
 <script>
-    // URL Web App mới nhất bạn vừa gửi
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyiIsHUftK27Sb6LvUGRI7tqPeETFtz1-tf6XZEjxe3lID09sMZCA2h9O-KANUoQ6Yp/exec";
+    // Đường dẫn Web App Apps Script mới nhất của bạn
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGaCY82wVN6-mXTg2y5ieG8piSuyCAAZrIufc5Fl1gyXn7WtkQ3FLxaNzApxGIYJL6/exec";
     
     let globalData = { options: [], votes: [], topic: "" };
 
@@ -175,18 +175,17 @@
             const area = document.getElementById('optionsArea');
             if(globalData.options.length === 0 || (globalData.options.length === 1 && globalData.options[0] === "")) {
                 area.innerHTML = "<p style='color:red;'>Chưa có phương án nào. Hãy bấm Quản lý để thêm!</p>";
-                return;
+            } else {
+                area.innerHTML = "";
+                globalData.options.forEach(opt => {
+                    if(opt.trim() !== "") {
+                        area.innerHTML += `
+                            <label class="option-item">
+                                <input type="radio" name="voteOption" value="${opt}"> ${opt}
+                            </label>`;
+                    }
+                });
             }
-            
-            area.innerHTML = "";
-            globalData.options.forEach(opt => {
-                if(opt.trim() !== "") {
-                    area.innerHTML += `
-                        <label class="option-item">
-                            <input type="radio" name="voteOption" value="${opt}"> ${opt}
-                        </label>`;
-                }
-            });
             document.getElementById('newOptionsInput').value = globalData.options.join(", ");
             
             if (sessionStorage.getItem("isAdmin") === "true") {
@@ -318,6 +317,7 @@
 
     function updateOptions() {
         const dataInput = document.getElementById('newOptionsInput').value.trim();
+        if (!dataInput) return alert("Vui lòng nhập phương án trước khi lưu!");
         if (!confirm("Xác nhận thay đổi danh sách phương án?")) return;
 
         fetch(SCRIPT_URL, {
@@ -327,9 +327,10 @@
             body: `action=updateOptions&data=${encodeURIComponent(dataInput)}`
         })
         .then(() => {
-            alert("Cập nhật phương án thành công!");
+            alert("Cập nhật danh sách phương án thành công!");
             location.reload();
-        });
+        })
+        .catch(err => alert("Lỗi kết nối khi gửi phương án: " + err));
     }
 
     function clearAllVotes() {

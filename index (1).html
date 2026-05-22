@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bầu Chọn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
+<style>
+/* ── Reset & Variables ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0b0f1a;
+  --surface:   #131827;
+  --card:      #1a2135;
+  --border:    #252d42;
+  --accent:    #4f8ef7;
+  --accent2:   #7c5cfc;
+  --green:     #2ecc8e;
+  --red:       #e05260;
+  --gold:      #f5c842;
+  --text:      #e8edf8;
+  --muted:     #7a8aaa;
+  --radius:    14px;
+  --shadow:    0 8px 32px rgba(0,0,0,0.4);
+}
+
+body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Background Mesh ───────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 10%, rgba(79,142,247,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(124,92,252,0.10) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ── Layout ────────────────────────────────────────────── */
+.app { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 32px 20px 80px; }
+
+/* ── Header ────────────────────────────────────────────── */
+header { text-align: center; margin-bottom: 40px; }
+.logo-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(79,142,247,0.12);
+  border: 1px solid rgba(79,142,247,0.3);
+  border-radius: 999px; padding: 6px 18px;
+  font-size: 12px; font-weight: 600; letter-spacing: .08em;
+  color: var(--accent); text-transform: uppercase; margin-bottom: 20px;
+}
+.logo-badge::before { content: '⬡'; font-size: 14px; }
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 6vw, 48px);
+  font-weight: 900; line-height: 1.1;
+  background: linear-gradient(135deg, #e8edf8 30%, #4f8ef7 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 10px;
+}
+#topicDisplay {
+  font-size: 15px; color: var(--muted);
+  min-height: 22px; transition: color .3s;
+}
+
+/* ── Cards ─────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  animation: fadeUp .4s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-title {
+  font-size: 11px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+}
+.card-title::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── Form inputs ────────────────────────────────────────── */
+label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 6px; font-weight: 500; }
+input[type="text"], input[type="password"], textarea, select {
+  width: 100%; padding: 12px 16px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); font-family: inherit; font-size: 14px;
+  outline: none; transition: border-color .2s, box-shadow .2s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79,142,247,0.15);
+}
+textarea { resize: vertical; min-height: 100px; }
+
+/* ── Radio Options ──────────────────────────────────────── */
+#optionsList { display: flex; flex-direction: column; gap: 10px; }
+.opt-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; cursor: pointer;
+  transition: border-color .2s, background .2s, transform .15s;
+}
+.opt-item:hover { border-color: var(--accent); background: rgba(79,142,247,0.06); transform: translateX(3px); }
+.opt-item input[type="radio"] { accent-color: var(--accent); width: 18px; height: 18px; flex-shrink: 0; }
+.opt-item.selected {
+  border-color: var(--accent);
+  background: rgba(79,142,247,0.1);
+  box-shadow: 0 0 0 2px rgba(79,142,247,0.25);
+}
+.opt-label { font-size: 15px; font-weight: 500; }
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 28px; border-radius: 10px; border: none;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all .2s; letter-spacing: .03em;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; width: 100%; margin-top: 20px;
+  box-shadow: 0 4px 16px rgba(79,142,247,0.35);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(79,142,247,0.5); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+.btn-danger  { background: rgba(224,82,96,0.15); color: var(--red); border: 1px solid rgba(224,82,96,0.3); }
+.btn-success { background: rgba(46,204,142,0.15); color: var(--green); border: 1px solid rgba(46,204,142,0.3); }
+.btn-neutral { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); }
+.btn-sm      { padding: 9px 18px; font-size: 13px; }
+
+.btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+
+/* ── Alerts ─────────────────────────────────────────────── */
+.alert {
+  padding: 12px 16px; border-radius: 10px;
+  font-size: 13px; font-weight: 500;
+  margin-top: 14px; display: none;
+  animation: fadeUp .3s ease;
+}
+.alert.show { display: flex; align-items: center; gap: 10px; }
+.alert-ok   { background: rgba(46,204,142,0.12); border: 1px solid rgba(46,204,142,0.3); color: var(--green); }
+.alert-err  { background: rgba(224,82,96,0.12);  border: 1px solid rgba(224,82,96,0.3);  color: var(--red); }
+.alert-info { background: rgba(79,142,247,0.12); border: 1px solid rgba(79,142,247,0.3); color: var(--accent); }
+
+/* ── Stats ──────────────────────────────────────────────── */
+#statsBox { display: none; }
+.stat-total {
+  font-size: 13px; color: var(--muted); margin-bottom: 16px;
+}
+.stat-total span { color: var(--gold); font-weight: 700; font-size: 16px; }
+.stat-row { margin-bottom: 14px; }
+.stat-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.stat-name   { font-size: 14px; font-weight: 600; }
+.stat-meta   { font-size: 12px; color: var(--muted); }
+.stat-bar-bg { height: 8px; background: var(--border); border-radius: 999px; overflow: hidden; }
+.stat-bar    { height: 100%; border-radius: 999px; transition: width .8s cubic-bezier(.4,0,.2,1); }
+
+/* ── Tabs ───────────────────────────────────────────────── */
+.tabs { display: flex; gap: 4px; background: var(--surface); padding: 4px; border-radius: 12px; margin-bottom: 24px; }
+.tab-btn {
+  flex: 1; padding: 10px; border: none; border-radius: 9px;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; background: transparent; color: var(--muted);
+  transition: all .2s;
+}
+.tab-btn.active { background: var(--card); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+
+/* ── Admin gate ─────────────────────────────────────────── */
+#adminGate { display: block; }
+#adminPanel { display: none; }
+.section-gap { margin-top: 20px; }
+
+/* ── Divider ────────────────────────────────────────────── */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* ── Loading spinner ────────────────────────────────────── */
+.spin {
+  display: inline-block; width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
+  border-radius: 50%; animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 500px) {
+  .card { padding: 20px; }
+  .btn-group { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="logo-badge">Hệ thống bầu chọn</div>
+    <h1>Bầu Chọn Cộng Đồng</h1>
+    <p id="topicDisplay">Đang tải chủ đề…</p>
+  </header>
+
+  <!-- ── TABS ── -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('voter')">🗳️ Bầu chọn</button>
+    <button class="tab-btn" onclick="switchTab('stats')">📊 Thống kê</button>
+    <button class="tab-btn" onclick="switchTab('admin')">⚙️ Quản trị</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!--  TAB 1 — VOTER                                        -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div id="tab-voter">
+    <div class="card">
+      <div class="card-title">Thông tin của bạn</div>
+      <label for="voterName">Họ và tên *</label>
+      <input type="text" id="voterName" placeholder="Nhập tên của bạn…" autocomplete="off"/>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Chọn phương án</div>
+      <div id="optionsList"><p style="color:var(--muted);font-size:14px">Đang tải danh sách…</p></div>
+      <div id="voteAlert" class="alert"></div>
+      <button class="btn btn-primary" id="voteBtn" onclick="submitVote()">
+        <span id="voteBtnText">Xác nhận bầu chọn</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!--  TAB 2 — STATS                                        -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div id="tab-stats" style="display:none">
+    <div class="card">
+      <div class="card-title">Kết quả bầu chọn</div>
+      <div id="statsLoading" style="color:var(--muted);font-size:14px">Đang tải…</div>
+      <div id="statsBox"></div>
+      <div class="divider"></div>
+      <button class="btn btn-neutral btn-sm" onclick="loadStats()">↻ Làm mới</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!--  TAB 3 — ADMIN                                        -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div id="tab-admin" style="display:none">
+
+    <!-- Gate -->
+    <div id="adminGate">
+      <div class="card">
+        <div class="card-title">Xác thực quản trị</div>
+        <label for="adminPass">Mật khẩu</label>
+        <input type="password" id="adminPass" placeholder="Nhập mật khẩu…" onkeydown="if(event.key==='Enter')adminLogin()"/>
+        <div id="adminLoginAlert" class="alert"></div>
+        <button class="btn btn-primary" onclick="adminLogin()">Đăng nhập</button>
+      </div>
+    </div>
+
+    <!-- Panel -->
+    <div id="adminPanel">
+
+      <!-- Chủ đề -->
+      <div class="card">
+        <div class="card-title">Cập nhật chủ đề</div>
+        <label for="newTopic">Chủ đề mới</label>
+        <input type="text" id="newTopic" placeholder="Nhập nội dung chủ đề…"/>
+        <div id="topicAlert" class="alert"></div>
+        <div class="btn-group">
+          <button class="btn btn-success btn-sm" onclick="adminSetTopic()">💾 Lưu chủ đề</button>
+        </div>
+      </div>
+
+      <!-- Phương án -->
+      <div class="card">
+        <div class="card-title">Cập nhật phương án</div>
+        <label for="newOptions">Danh sách phương án (mỗi dòng một phương án)</label>
+        <textarea id="newOptions" placeholder="Phương án A&#10;Phương án B&#10;Phương án C"></textarea>
+        <div id="optionsAlert" class="alert"></div>
+        <div class="btn-group">
+          <button class="btn btn-success btn-sm" onclick="adminSetOptions()">💾 Lưu phương án</button>
+        </div>
+      </div>
+
+      <!-- Reset -->
+      <div class="card">
+        <div class="card-title">Vùng nguy hiểm</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">
+          Xóa toàn bộ lịch sử bầu chọn trong <code style="color:var(--red)">sheet1</code>. Hành động này <strong>không thể hoàn tác</strong>.
+        </p>
+        <div id="resetAlert" class="alert"></div>
+        <div class="btn-group">
+          <button class="btn btn-danger btn-sm" onclick="adminReset()">🗑️ Xóa lịch sử bầu chọn</button>
+          <button class="btn btn-neutral btn-sm" onclick="adminLogout()">Đăng xuất</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /.app -->
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  CONFIG — ĐỔI URL NÀY THÀNH WEB APP URL CỦA BẠN
+// ══════════════════════════════════════════════════════════════
+var GAS_URL = "https://script.google.com/macros/s/AKfycbxl7bD4Kjz25MlibM0hcxvlPXv-IgP_mYhVSBjuFRTd6cZtiTK3ICeYXqi5pvwQGkAYvg/exec";
+
+// ══════════════════════════════════════════════════════════════
+//  API HELPER — dùng GET 100%, chống cache
+// ══════════════════════════════════════════════════════════════
+async function api(params) {
+  var qs = Object.entries(params)
+    .map(([k,v]) => encodeURIComponent(k) + "=" + encodeURIComponent(v))
+    .join("&");
+  var url = GAS_URL + "?" + qs + "&nocache=" + Date.now();
+  var res = await fetch(url, { redirect: "follow" });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return res.json();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  TAB NAVIGATION
+// ══════════════════════════════════════════════════════════════
+function switchTab(name) {
+  ["voter","stats","admin"].forEach(t => {
+    document.getElementById("tab-" + t).style.display = t === name ? "" : "none";
+  });
+  document.querySelectorAll(".tab-btn").forEach((b,i) => {
+    b.classList.toggle("active", ["voter","stats","admin"][i] === name);
+  });
+  if (name === "stats") loadStats();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ALERTS
+// ══════════════════════════════════════════════════════════════
+function showAlert(id, msg, type /* ok | err | info */) {
+  var el = document.getElementById(id);
+  el.className = "alert alert-" + type + " show";
+  el.textContent = msg;
+  if (type !== "err") setTimeout(() => el.classList.remove("show"), 4000);
+}
+function hideAlert(id) { document.getElementById(id).classList.remove("show"); }
+
+// ══════════════════════════════════════════════════════════════
+//  LOAD TOPIC + OPTIONS (on page load)
+// ══════════════════════════════════════════════════════════════
+async function loadTopicAndOptions() {
+  try {
+    var [t, o] = await Promise.all([
+      api({ action: "getTopic" }),
+      api({ action: "getOptions" })
+    ]);
+    document.getElementById("topicDisplay").textContent = t.topic || "(Chưa có chủ đề)";
+    renderOptions(o.options || []);
+  } catch(err) {
+    document.getElementById("topicDisplay").textContent = "⚠ Không tải được dữ liệu";
+    document.getElementById("optionsList").innerHTML =
+      '<p style="color:var(--red);font-size:13px">Lỗi: ' + err.message + '</p>';
+  }
+}
+
+function renderOptions(opts) {
+  var el = document.getElementById("optionsList");
+  if (!opts.length) {
+    el.innerHTML = '<p style="color:var(--muted);font-size:14px">Chưa có phương án nào.</p>';
+    return;
+  }
+  el.innerHTML = opts.map((o,i) => `
+    <label class="opt-item" id="opt_${i}" onclick="selectOpt(this)">
+      <input type="radio" name="vote_choice" value="${esc(o)}"/>
+      <span class="opt-label">${esc(o)}</span>
+    </label>`).join("");
+}
+
+function selectOpt(el) {
+  document.querySelectorAll(".opt-item").forEach(e => e.classList.remove("selected"));
+  el.classList.add("selected");
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SUBMIT VOTE
+// ══════════════════════════════════════════════════════════════
+async function submitVote() {
+  var voter  = document.getElementById("voterName").value.trim();
+  var radio  = document.querySelector('input[name="vote_choice"]:checked');
+  var choice = radio ? radio.value : "";
+  hideAlert("voteAlert");
+
+  if (!voter)  { showAlert("voteAlert","⚠ Vui lòng nhập họ tên.","err"); return; }
+  if (!choice) { showAlert("voteAlert","⚠ Vui lòng chọn một phương án.","err"); return; }
+
+  var btn = document.getElementById("voteBtn");
+  btn.disabled = true;
+  document.getElementById("voteBtnText").innerHTML = '<span class="spin"></span> Đang gửi…';
+
+  try {
+    var res = await api({ action: "vote", voter, choice });
+    if (res.error) throw new Error(res.error);
+    showAlert("voteAlert", "✓ " + res.message, "ok");
+  } catch(err) {
+    showAlert("voteAlert", "✗ " + err.message, "err");
+  } finally {
+    btn.disabled = false;
+    document.getElementById("voteBtnText").textContent = "Xác nhận bầu chọn";
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  STATS
+// ══════════════════════════════════════════════════════════════
+var BAR_COLORS = ["#4f8ef7","#7c5cfc","#2ecc8e","#f5c842","#e05260","#f97316","#06b6d4","#a855f7"];
+
+async function loadStats() {
+  var box  = document.getElementById("statsBox");
+  var load = document.getElementById("statsLoading");
+  box.style.display = "none"; load.style.display = "";
+  try {
+    var res = await api({ action: "getStats" });
+    if (res.error) throw new Error(res.error);
+    renderStats(res);
+  } catch(err) {
+    load.textContent = "⚠ Lỗi tải thống kê: " + err.message;
+  }
+}
+
+function renderStats(data) {
+  var box  = document.getElementById("statsBox");
+  var load = document.getElementById("statsLoading");
+  var bd   = data.breakdown || [];
+
+  if (!bd.length) {
+    load.textContent = "Chưa có phiếu bầu nào.";
+    return;
+  }
+
+  var rows = bd.map((r,i) => `
+    <div class="stat-row">
+      <div class="stat-header">
+        <span class="stat-name">${esc(r.choice)}</span>
+        <span class="stat-meta">${r.count} phiếu — ${r.pct}%</span>
+      </div>
+      <div class="stat-bar-bg">
+        <div class="stat-bar" style="width:${r.pct}%;background:${BAR_COLORS[i % BAR_COLORS.length]}"></div>
+      </div>
+    </div>`).join("");
+
+  box.innerHTML = `<p class="stat-total">Tổng số phiếu: <span>${data.total}</span></p>` + rows;
+  load.style.display = "none";
+  box.style.display  = "";
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ADMIN
+// ══════════════════════════════════════════════════════════════
+var _adminPass = "";
+
+function adminLogin() {
+  var pass = document.getElementById("adminPass").value;
+  if (!pass) { showAlert("adminLoginAlert","Vui lòng nhập mật khẩu.","err"); return; }
+  // Validate against backend for security
+  _adminPass = pass;
+  // Quick client hint; real auth checked server-side on every action
+  document.getElementById("adminGate").style.display  = "none";
+  document.getElementById("adminPanel").style.display = "";
+}
+
+function adminLogout() {
+  _adminPass = "";
+  document.getElementById("adminPass").value           = "";
+  document.getElementById("adminGate").style.display  = "";
+  document.getElementById("adminPanel").style.display = "none";
+}
+
+async function adminSetTopic() {
+  var topic = document.getElementById("newTopic").value.trim();
+  hideAlert("topicAlert");
+  if (!topic) { showAlert("topicAlert","Vui lòng nhập chủ đề.","err"); return; }
+  try {
+    var res = await api({ action: "adminSetTopic", pass: _adminPass, topic });
+    if (res.error) throw new Error(res.error);
+    showAlert("topicAlert","✓ " + res.message,"ok");
+    document.getElementById("topicDisplay").textContent = topic;
+  } catch(err) { showAlert("topicAlert","✗ " + err.message,"err"); }
+}
+
+async function adminSetOptions() {
+  var raw  = document.getElementById("newOptions").value;
+  var opts = raw.split("\n").map(s=>s.trim()).filter(Boolean);
+  hideAlert("optionsAlert");
+  if (!opts.length) { showAlert("optionsAlert","Vui lòng nhập ít nhất một phương án.","err"); return; }
+  try {
+    var res = await api({ action: "adminSetOptions", pass: _adminPass, options: opts.join(",") });
+    if (res.error) throw new Error(res.error);
+    showAlert("optionsAlert","✓ " + res.message,"ok");
+    renderOptions(opts);  // refresh voter tab live
+  } catch(err) { showAlert("optionsAlert","✗ " + err.message,"err"); }
+}
+
+async function adminReset() {
+  if (!confirm("Bạn chắc chắn muốn XÓA TOÀN BỘ lịch sử bầu chọn?")) return;
+  hideAlert("resetAlert");
+  try {
+    var res = await api({ action: "adminReset", pass: _adminPass });
+    if (res.error) throw new Error(res.error);
+    showAlert("resetAlert","✓ " + res.message,"ok");
+  } catch(err) { showAlert("resetAlert","✗ " + err.message,"err"); }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════════
+loadTopicAndOptions();
+</script>
+</body>
+</html>

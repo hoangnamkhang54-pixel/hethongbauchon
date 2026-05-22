@@ -146,10 +146,10 @@
         </div>
 
         <h3>⚙️ Thiết Lập Phương Án (Lưu tại trang Options)</h3>
-        <label style="font-size: 13px; font-weight: normal; margin-bottom: 5px; display:block;">Các phương án cách nhau bằng <strong>dấu phẩy (,)</strong>:</label>
+        <label style="font-size: 13px; font-weight: normal; margin-bottom: 5px; display:block;">Các phương án cách nhau bằng <strong>dấu phẩy (,)</strong> (Để trống nếu muốn XÓA HẾT phương án):</label>
         <textarea id="newOptionsInput"></textarea>
-        <button style="background: #28a745; margin-top: 10px; padding: 10px;" onclick="updateOptions()">Cập Nhật Cột Phương Án</button>
-        <button style="background: #dc3545; margin-top: 10px; padding: 10px;" onclick="clearAllVotes()">🚨 Xóa Toàn Bộ Phiếu Bầu</button>
+        <button style="background: #28a445; margin-top: 10px; padding: 10px;" onclick="updateOptions()">Cập Nhật Cột Phương Án</button>
+        <button style="background: #dc3545; margin-top: 10px; padding: 10px;" onclick="clearAllVotes()">🚨 Xóa Toàn Bộ Người Bầu Chọn</button>
     </div>
 </div>
 
@@ -158,8 +158,8 @@
 </div>
 
 <script>
-    // Liên kết Web App mới của bạn đã được cập nhật tự động tại đây
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyr6fNsOcrp9qWRPE7u6bo3oT0nc2MLsK8gqOJqqdv9GMA4LyWxoIqMnMEM1_P7Jk0Fyg/exec";
+    // Đã cập nhật chính xác link Web App mới của bạn
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwvn868Yji-sE203cx4bc2c_TmSYDZmT7zoP5diMkOKjdmEWJMqwZLj2Hx7ZjA81U-Rog/exec";
     
     let globalData = { options: [], votes: [], topic: "" };
 
@@ -168,25 +168,25 @@
             const response = await fetch(SCRIPT_URL);
             globalData = await response.json();
             
-            document.getElementById('displayTopic').innerText = "📌 " + globalData.topic;
-            document.getElementById('topicInput').value = globalData.topic;
+            document.getElementById('displayTopic').innerText = "📌 " + (globalData.topic || "Chưa có chủ đề");
+            document.getElementById('topicInput').value = globalData.topic || "";
             
             const area = document.getElementById('optionsArea');
-            if(globalData.options.length === 0 || (globalData.options.length === 1 && globalData.options[0] === "")) {
+            if(!globalData.options || globalData.options.length === 0 || (globalData.options.length === 1 && globalData.options[0] === "")) {
                 area.innerHTML = "<p style='color:#666; font-style: italic;'>Chưa có phương án nào. Hãy vào bảng Quản lý để thiết lập!</p>";
-                return;
+                document.getElementById('newOptionsInput').value = "";
+            } else {
+                area.innerHTML = "";
+                globalData.options.forEach(opt => {
+                    if(opt && opt.toString().trim() !== "") {
+                        area.innerHTML += `
+                            <label class="option-item">
+                                <input type="radio" name="voteOption" value="${opt}"> ${opt}
+                            </label>`;
+                    }
+                });
+                document.getElementById('newOptionsInput').value = globalData.options.join(", ");
             }
-            
-            area.innerHTML = "";
-            globalData.options.forEach(opt => {
-                if(opt.trim() !== "") {
-                    area.innerHTML += `
-                        <label class="option-item">
-                            <input type="radio" name="voteOption" value="${opt}"> ${opt}
-                        </label>`;
-                }
-            });
-            document.getElementById('newOptionsInput').value = globalData.options.join(", ");
             
             if (sessionStorage.getItem("isAdmin") === "true") {
                 document.getElementById('adminPanel').style.display = "block";
@@ -213,7 +213,7 @@
             alert("Cập nhật chủ đề thành công!");
             location.reload();
         })
-        .catch(() => alert("Lỗi khi đổi chủ đề!"));
+        .catch(() => alert("Lỗi khi kết nối gửi dữ liệu đổi chủ đề!"));
     }
 
     function submitVote() {
@@ -236,16 +236,16 @@
         .then(() => {
             statusDiv.className = "success";
             statusDiv.innerText = `Thành công! Hệ thống đã ghi nhận lựa chọn của bạn.`;
-            // Chờ 1.2 giây để Google Sheets cập nhật xong xuôi dữ liệu rồi mới load lại danh sách
             setTimeout(() => {
-                loadData();
+                location.reload();
             }, 1200);
         })
         .catch(() => {
             statusDiv.className = "error";
-            statusDiv.innerText = "Lỗi kết nối hệ thống!";
+            statusDiv.innerText = "Lỗi kết nối hệ thống không thể vote!";
         });
     }
+
     function openAdmin() {
         if (sessionStorage.getItem("isAdmin") === "true") {
             document.getElementById('adminPanel').style.display = "block";
@@ -265,36 +265,44 @@
     }
 
     function closeAdmin() {
-        if (confirm("Bạn có chắc chắn muốn đăng xuất và đóng bảng điều khiển Admin không?")) {
+        if (confirm("Bạn có chắc chắn muốn đăng xuất Admin không?")) {
             sessionStorage.removeItem("isAdmin");
             document.getElementById('adminPanel').style.display = "none";
-            alert("Đã đăng xuất Admin thành công.");
+            alert("Đã đăng xuất Admin.");
         }
     }
 
     function buildAdminDashboard() {
         const totalVotes = globalData.votes.length;
         let countMap = {};
-        globalData.options.forEach(opt => countMap[opt] = 0);
+        
+        if(globalData.options) {
+            globalData.options.forEach(opt => { if(opt) countMap[opt] = 0; });
+        }
+        
         globalData.votes.forEach(v => {
             if (countMap[v.choice] !== undefined) countMap[v.choice]++;
         });
 
         let statHTML = `<p><strong>Tổng số phiếu hiện tại:</strong> ${totalVotes} phiếu</p>`;
-        globalData.options.forEach(opt => {
-            const count = countMap[opt] || 0;
-            const percent = totalVotes > 0 ? ((count / totalVotes) * 100).toFixed(1) : 0;
-            statHTML += `
-                <div style="margin-bottom: 12px;">
-                    <div style="display:flex; justify-content:space-between; font-size:14px;">
-                        <span><strong>${opt}</strong></span>
-                        <span>${count} phiếu (${percent}%)</span>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: ${percent}%;"></div>
-                    </div>
-                </div>`;
-        });
+        if(globalData.options && globalData.options.length > 0 && globalData.options[0] !== "") {
+            globalData.options.forEach(opt => {
+                if(opt) {
+                    const count = countMap[opt] || 0;
+                    const percent = totalVotes > 0 ? ((count / totalVotes) * 100).toFixed(1) : 0;
+                    statHTML += `
+                        <div style="margin-bottom: 12px;">
+                            <div style="display:flex; justify-content:space-between; font-size:14px;">
+                                <span><strong>${opt}</strong></span>
+                                <span>${count} phiếu (${percent}%)</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: ${percent}%;"></div>
+                            </div>
+                        </div>`;
+                }
+            });
+        }
         document.getElementById('statResults').innerHTML = statHTML;
 
         const tbody = document.getElementById('voterListBody');
@@ -312,28 +320,29 @@
 
     function updateOptions() {
         const dataInput = document.getElementById('newOptionsInput').value.trim();
-        if (!dataInput) return alert("Vui lòng nhập phương án trước khi lưu!");
-        if (!confirm("Xác nhận thay đổi danh sách phương án?")) return;
+        const msg = dataInput === "" ? "Bạn đang để trống. Xác nhận XÓA SẠCH toàn bộ phương án hiện tại?" : "Xác nhận thay đổi danh sách phương án?";
+        if (!confirm(msg)) return;
 
+        // Mã hóa dữ liệu an toàn phòng ký tự lạ, khoảng trống hoặc số
         const targetUrl = `${SCRIPT_URL}?action=updateOptions&data=${encodeURIComponent(dataInput)}`;
         fetch(targetUrl, { method: 'POST', mode: 'no-cors' })
         .then(() => {
             alert("Cập nhật phương án thành công!");
             location.reload();
         })
-        .catch(err => alert("Lỗi khi kết nối gửi dữ liệu: " + err));
+        .catch(err => alert("Lỗi kết nối khi gửi dữ liệu phương án: " + err));
     }
 
     function clearAllVotes() {
-        if (!confirm("Bạn có chắc chắn muốn XÓA SẠCH toàn bộ kết quả bầu chọn không?")) return;
+        if (!confirm("🚨 CẢNH BÁO: Bạn có chắc chắn muốn XÓA SẠCH toàn bộ danh sách người đã bầu chọn không? Dữ liệu trên file Sheets sẽ biến mất hoàn toàn!")) return;
         
         const targetUrl = `${SCRIPT_URL}?action=clearVotes`;
         fetch(targetUrl, { method: 'POST', mode: 'no-cors' })
         .then(() => {
-            alert("Đã xóa sạch phiếu bầu thành công!");
+            alert("Đã xóa sạch danh sách người bầu chọn thành công!");
             location.reload();
         })
-        .catch(err => alert("Lỗi kết nối khi xóa: " + err));
+        .catch(err => alert("Lỗi kết nối khi gửi lệnh xóa: " + err));
     }
 </script>
 

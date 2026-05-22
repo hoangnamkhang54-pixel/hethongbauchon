@@ -158,7 +158,6 @@
 </div>
 
 <script>
-    // Đã cập nhật chính xác link Web App mới của bạn
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwvn868Yji-sE203cx4bc2c_TmSYDZmT7zoP5diMkOKjdmEWJMqwZLj2Hx7ZjA81U-Rog/exec";
     
     let globalData = { options: [], votes: [], topic: "" };
@@ -323,7 +322,6 @@
         const msg = dataInput === "" ? "Bạn đang để trống. Xác nhận XÓA SẠCH toàn bộ phương án hiện tại?" : "Xác nhận thay đổi danh sách phương án?";
         if (!confirm(msg)) return;
 
-        // Mã hóa dữ liệu an toàn phòng ký tự lạ, khoảng trống hoặc số
         const targetUrl = `${SCRIPT_URL}?action=updateOptions&data=${encodeURIComponent(dataInput)}`;
         fetch(targetUrl, { method: 'POST', mode: 'no-cors' })
         .then(() => {

@@ -87,7 +87,6 @@
         }
         .admin-btn:hover { background: #212529; transform: scale(1.05); }
         
-        /* KHU VỰC ĐIỀU KHIỂN CỦA ADMIN */
         #adminPanel { 
             display: none; margin-top: 25px; border-top: 3px dashed #6c757d; 
             padding-top: 20px; background: #f8f9fa; padding: 20px; border-radius: 8px;
@@ -159,8 +158,8 @@
 </div>
 
 <script>
-    // Liên kết Web App mới nhất của bạn đã được cấu hình tự động tại đây
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwZYzae34Y4SSmYC8gDtCChe19lrfwN5h1A1BGHYtq2DC-dlG6ypXt8PlIzgaYSKMam/exec";
+    // Liên kết Web App mới của bạn đã được cập nhật tự động tại đây
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbykWV6uFUm2ScpQFHVTeQn1-LsThIV9d1LBK290u2eOKo4S6MsXhKEDZ9gc7ZibHmS6iQ/exec";
     
     let globalData = { options: [], votes: [], topic: "" };
 
@@ -174,7 +173,7 @@
             
             const area = document.getElementById('optionsArea');
             if(globalData.options.length === 0 || (globalData.options.length === 1 && globalData.options[0] === "")) {
-                area.innerHTML = "<p style='color:red;'>Chưa có phương án nào. Hãy bấm Quản lý để thêm!</p>";
+                area.innerHTML = "<p style='color:#666; font-style: italic;'>Chưa có phương án nào. Hãy vào bảng Quản lý để thiết lập!</p>";
                 return;
             }
             
@@ -208,12 +207,8 @@
         statusDiv.className = "info";
         statusDiv.innerText = "Đang lưu chủ đề mới...";
 
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `action=updateTopic&topic=${encodeURIComponent(newTop)}`
-        })
+        const targetUrl = `${SCRIPT_URL}?action=updateTopic&topic=${encodeURIComponent(newTop)}`;
+        fetch(targetUrl, { method: 'POST', mode: 'no-cors' })
         .then(() => {
             alert("Cập nhật chủ đề thành công!");
             location.reload();
@@ -235,12 +230,8 @@
         statusDiv.className = "info";
         statusDiv.innerText = "Đang gửi dữ liệu lên hệ thống...";
 
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `action=vote&nguoiBinhChon=${encodeURIComponent(nameInput)}&luaChon=${encodeURIComponent(selectedOption.value)}`
-        })
+        const targetUrl = `${SCRIPT_URL}?action=vote&nguoiBinhChon=${encodeURIComponent(nameInput)}&luaChon=${encodeURIComponent(selectedOption.value)}`;
+        fetch(targetUrl, { method: 'POST', mode: 'no-cors' })
         .then(() => {
             statusDiv.className = "success";
             statusDiv.innerText = `Thành công! Hệ thống đã ghi nhận lựa chọn của bạn.`;
@@ -321,42 +312,22 @@
         if (!dataInput) return alert("Vui lòng nhập phương án trước khi lưu!");
         if (!confirm("Xác nhận thay đổi danh sách phương án?")) return;
 
-        // ÉP CHUYỂN DỮ LIỆU LÊN URL ĐỂ GOOGLE APPS SCRIPT ĐỌC ĐƯỢC CHUẨN 100%
         const targetUrl = `${SCRIPT_URL}?action=updateOptions&data=${encodeURIComponent(dataInput)}`;
-
-        fetch(targetUrl, {
-            method: 'POST',
-            mode: 'no-cors'
-        })
-        .then(() => {
-            alert("Cập nhật phương án thành công! Hệ thống đang làm mới trang.");
-            location.reload();
-        })
-        .catch(err => alert("Lỗi kết nối khi gửi dữ liệu: " + err));
-    }
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `action=updateOptions&data=${encodeURIComponent(dataInput)}`
-        })
+        fetch(targetUrl, { method: 'POST', mode: 'no-cors' })
         .then(() => {
             alert("Cập nhật phương án thành công!");
             location.reload();
-        });
+        })
+        .catch(err => alert("Lỗi khi kết nối gửi dữ liệu: " + err));
     }
 
     function clearAllVotes() {
         if (!confirm("Bạn có chắc chắn muốn XÓA SẠCH toàn bộ kết quả bầu chọn không?")) return;
         
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `action=clearVotes`
-        })
+        const targetUrl = `${SCRIPT_URL}?action=clearVotes`;
+        fetch(targetUrl, { method: 'POST', mode: 'no-cors' })
         .then(() => {
-            alert("Đã gửi lệnh xóa sạch phiếu bầu thành công!");
+            alert("Đã xóa sạch phiếu bầu thành công!");
             location.reload();
         })
         .catch(err => alert("Lỗi kết nối khi xóa: " + err));

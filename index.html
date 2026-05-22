@@ -24,10 +24,22 @@
             width: 100%; 
             max-width: 500px; 
         }
-        h2 { text-align: center; color: #333; margin-bottom: 25px; }
+        h2 { text-align: center; color: #333; margin-bottom: 5px; }
+        #displayTopic { 
+            text-align: center; 
+            color: #007bff; 
+            font-weight: bold; 
+            font-size: 18px; 
+            margin-bottom: 25px; 
+            display: block; 
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
-        input[type="text"] { 
+        input[type="text"], textarea { 
             width: 100%; 
             padding: 12px; 
             border: 1px solid #ddd; 
@@ -80,17 +92,12 @@
             display: none; margin-top: 25px; border-top: 3px dashed #6c757d; 
             padding-top: 20px; background: #f8f9fa; padding: 20px; border-radius: 8px;
         }
-        #adminPanel h3 { margin-top: 20px; margin-bottom: 10px; color: #212529; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
+        #adminPanel h3 { margin-top: 25px; margin-bottom: 10px; color: #212529; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
         #adminPanel h3:first-child { margin-top: 0; }
         #newOptionsInput { width: 100%; height: 60px; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; font-family: inherit; resize: vertical; }
         
-        /* Các bảng dữ liệu trong Admin */
-        .admin-table {
-            width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 14px;
-        }
-        .admin-table th, .admin-table td {
-            border: 1px solid #dee2e6; padding: 10px; text-align: left;
-        }
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 14px; }
+        .admin-table th, .admin-table td { border: 1px solid #dee2e6; padding: 10px; text-align: left; }
         .admin-table th { background-color: #e9ecef; color: #495057; }
         .progress-bar-container { background-color: #e9ecef; border-radius: 4px; height: 12px; width: 100%; overflow: hidden; margin-top: 5px; }
         .progress-bar { background-color: #28a745; height: 100%; width: 0%; transition: width 0.5s; }
@@ -100,6 +107,7 @@
 
 <div class="container">
     <h2>Hệ Thống Bầu Chọn Trực Tuyến</h2>
+    <div id="displayTopic">Đang tải chủ đề cuộc bình chọn đợi chút nha</div>
     
     <div class="form-group">
         <label for="voterName">Họ và Tên người bình chọn:</label>
@@ -109,7 +117,7 @@
     <div class="form-group">
         <label>Chọn một trong các phương án sau:</label>
         <div class="options-group" id="optionsArea">
-            <p style="color: #666; font-style: italic;">Đang tải danh sách phương án từ máy chủ đợi một tí nha</p>
+            <p style="color: #666; font-style: italic;">Đang tải danh sách phương án từ máy chủ đợi chút nha</p>
         </div>
     </div>
 
@@ -117,6 +125,10 @@
     <div id="statusMessage"></div>
 
     <div id="adminPanel">
+        <h3>📝 Thay Đổi Chủ Đề (Lưu tại trang Topics)</h3>
+        <input type="text" id="topicInput" placeholder="Ví dụ: Bầu chọn dự án lớp học...">
+        <button style="background: #17a2b8; margin-top: 10px; padding: 10px;" onclick="updateTopic()">Xác Nhận Đổi Chủ Đề</button>
+
         <h3>📊 Thống Kê Kết Quả</h3>
         <div id="statResults">Đang tính toán tỉ lệ...</div>
 
@@ -132,10 +144,11 @@
             </table>
         </div>
 
-        <h3>⚙️ Thiết Lập Phương Án</h3>
+        <h3>⚙️ Thiết Lập Phương Án (Lưu tại trang Options)</h3>
         <label style="font-size: 13px; font-weight: normal; margin-bottom: 5px; display:block;">Các phương án cách nhau bằng <strong>dấu phẩy (,)</strong>:</label>
         <textarea id="newOptionsInput"></textarea>
         <button style="background: #28a745; margin-top: 10px; padding: 10px;" onclick="updateOptions()">Cập Nhật Cột Phương Án</button>
+        <button style="background: #dc3545; margin-top: 10px; padding: 10px;" onclick="clearAllVotes()">🚨 Xóa Toàn Bộ Phiếu Bầu</button>
     </div>
 </div>
 
@@ -144,17 +157,22 @@
 </div>
 
 <script>
-    // URL mới cập nhật của bạn
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxryUgSJVCKJI9zmv4QmPqeujBgKGCvxNhIubXkVPMC5OXTH_av2CoQV7nDBDEI2mU5/exec";
+    // URL Web App mới nhất bạn vừa gửi
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHvBGraQZ8dXUrBdu5Ed8a88XwEJ-7RzpCMn7ouB3ZQ5BLxAaq6BxjvJu8NxySaNC2/exec";
     
-    let globalData = { options: [], votes: [] };
+    let globalData = { options: [], votes: [], topic: "" };
 
-    // 1. Tải danh sách phương án và dữ liệu vote từ máy chủ
-    async function loadOptions() {
+    // 1. Tải toàn bộ dữ liệu (Phương án, phiếu bầu, chủ đề)
+    async function loadData() {
         try {
             const response = await fetch(SCRIPT_URL);
             globalData = await response.json();
             
+            // Cập nhật chủ đề lên màn hình chính
+            document.getElementById('displayTopic').innerText = "📌 " + globalData.topic;
+            document.getElementById('topicInput').value = globalData.topic;
+            
+            // Cập nhật danh sách phương án lựa chọn
             const area = document.getElementById('optionsArea');
             if(globalData.options.length === 0 || (globalData.options.length === 1 && globalData.options[0] === "")) {
                 area.innerHTML = "<p style='color:red;'>Chưa có phương án nào. Hãy bấm Quản lý để thêm!</p>";
@@ -172,7 +190,6 @@
             });
             document.getElementById('newOptionsInput').value = globalData.options.join(", ");
             
-            // Nếu bảng điều khiển admin đang mở, cập nhật luôn dữ liệu mới
             if(document.getElementById('adminPanel').style.display === "block") {
                 buildAdminDashboard();
             }
@@ -181,22 +198,37 @@
         }
     }
     
-    loadOptions();
+    loadData();
 
-    // 2. Xử lý gửi bình chọn
+    // 2. Gửi lệnh cập nhật Chủ đề mới lên sheet Topics
+    function updateTopic() {
+        const newTop = document.getElementById('topicInput').value.trim();
+        if(!newTop) return alert("Vui lòng gõ chủ đề!");
+        
+        const statusDiv = document.getElementById('statusMessage');
+        statusDiv.className = "info";
+        statusDiv.innerText = "Đang lưu chủ đề mới...";
+
+        fetch(SCRIPT_URL + "?action=updateTopic&topic=" + encodeURIComponent(newTop), {
+            method: 'POST',
+            mode: 'no-cors'
+        })
+        .then(() => {
+            alert("Cập nhật chủ đề thành công!");
+            location.reload();
+        })
+        .catch(() => alert("Lỗi khi đổi chủ đề!"));
+    }
+
+    // 3. Xử lý gửi bình chọn
     function submitVote() {
         const nameInput = document.getElementById('voterName').value.trim();
         const selectedOption = document.querySelector('input[name="voteOption"]:checked');
         const statusDiv = document.getElementById('statusMessage');
 
-        if (!nameInput) {
+        if (!nameInput || !selectedOption) {
             statusDiv.className = "error";
-            statusDiv.innerText = "Vui lòng nhập tên của bạn để định danh!";
-            return;
-        }
-        if (!selectedOption) {
-            statusDiv.className = "error";
-            statusDiv.innerText = "Vui lòng chọn 1 phương án!";
+            statusDiv.innerText = "Vui lòng nhập tên và chọn 1 phương án!";
             return;
         }
 
@@ -212,31 +244,29 @@
         .then(() => {
             statusDiv.className = "success";
             statusDiv.innerText = `Thành công! Hệ thống đã ghi nhận lựa chọn của bạn.`;
-            loadOptions(); // Tải lại dữ liệu ngầm để cập nhật số liệu
+            loadData(); 
         })
-        .catch(error => {
+        .catch(() => {
             statusDiv.className = "error";
             statusDiv.innerText = "Lỗi kết nối hệ thống!";
         });
     }
 
-    // 3. Hàm mở quyền Admin bằng mật khẩu
+    // 4. Mở quyền quản lý Admin
     function openAdmin() {
-        const password = prompt("Nhập mật khẩu để truy cập quyền Admin:");
+        const password = prompt("Nhập mật khẩu truy cập Admin:");
         if (password === "khang22042016") {
             document.getElementById('adminPanel').style.display = "block";
             buildAdminDashboard();
-            alert("Mật khẩu chính xác. Đã hiển thị bảng thống kê!");
+            alert("Xác thực thành công!");
         } else if (password !== null) {
-            alert("Sai mật khẩu! Bạn không có quyền truy cập.");
+            alert("Mật khẩu không đúng!");
         }
     }
 
-    // Hàm tự động xử lý và render biểu đồ % cùng danh sách người bầu chọn
+    // 5. Tính toán dữ liệu thống kê
     function buildAdminDashboard() {
         const totalVotes = globalData.votes.length;
-        
-        // --- Tính toán tỉ lệ phần trăm ---
         let countMap = {};
         globalData.options.forEach(opt => countMap[opt] = 0);
         globalData.votes.forEach(v => {
@@ -260,7 +290,6 @@
         });
         document.getElementById('statResults').innerHTML = statHTML;
 
-        // --- Tạo bảng danh sách chi tiết ---
         const tbody = document.getElementById('voterListBody');
         if (globalData.votes.length === 0) {
             tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#999;">Chưa có ai bình chọn</td></tr>`;
@@ -274,14 +303,10 @@
         }
     }
 
-    // 4. Admin cập nhật phương án mới
+    // 6. Admin cập nhật phương án mới
     function updateOptions() {
         const dataInput = document.getElementById('newOptionsInput').value.trim();
-        if (!confirm("Bạn có chắc chắn muốn thay đổi toàn bộ danh sách phương án không?")) return;
-
-        const statusDiv = document.getElementById('statusMessage');
-        statusDiv.className = "info";
-        statusDiv.innerText = "Admin đang cập nhật phương án...";
+        if (!confirm("Xác nhận thay đổi danh sách phương án?")) return;
 
         fetch(SCRIPT_URL, {
             method: 'POST',
@@ -290,11 +315,22 @@
             body: `data=${encodeURIComponent(dataInput)}&action=updateOptions`
         })
         .then(() => {
-            alert("Cập nhật thành công! Trang web đang tải lại dữ liệu.");
+            alert("Cập nhật phương án thành công!");
             location.reload();
+        });
+    }
+
+    // 7. Lệnh xóa phiếu bầu
+    function clearAllVotes() {
+        if (!confirm("Bạn có chắc chắn muốn XÓA SẠCH toàn bộ kết quả bầu chọn không?")) return;
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: `action=clearVotes`
         })
-        .catch(error => {
-            alert("Lỗi khi cập nhật!");
+        .then(() => {
+            alert("Đã xóa sạch phiếu bầu!");
+            location.reload();
         });
     }
 </script>

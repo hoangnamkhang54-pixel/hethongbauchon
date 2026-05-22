@@ -159,7 +159,8 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHvBGraQZ8dXUrBdu5Ed8a88XwEJ-7RzpCMn7ouB3ZQ5BLxAaq6BxjvJu8NxySaNC2/exec";
+    // Link Web App mới nhất bạn vừa triển khai
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyaM83FEa-iZGL5XJNGwJBLv-FNkyF6Z0UkelwQg3pfowDjqPp4oCQNsNynIx6lV7cI/exec";
     
     let globalData = { options: [], votes: [], topic: "" };
 
@@ -189,7 +190,6 @@
             });
             document.getElementById('newOptionsInput').value = globalData.options.join(", ");
             
-            // ĐOẠN KIỂM TRA: Nếu bộ nhớ trình duyệt ghi nhận đã đăng nhập Admin thì tự mở luôn không cần hỏi mật khẩu
             if (sessionStorage.getItem("isAdmin") === "true") {
                 document.getElementById('adminPanel').style.display = "block";
                 buildAdminDashboard();
@@ -216,7 +216,7 @@
         })
         .then(() => {
             alert("Cập nhật chủ đề thành công!");
-            location.reload(); // Khi reload, sessionStorage vẫn giữ trạng thái Admin đăng nhập
+            location.reload();
         })
         .catch(() => alert("Lỗi khi đổi chủ đề!"));
     }
@@ -253,7 +253,7 @@
         });
     }
 
-    // 4. Vào Admin (Có kiểm tra trạng thái cũ)
+    // 4. Vào Admin
     function openAdmin() {
         if (sessionStorage.getItem("isAdmin") === "true") {
             document.getElementById('adminPanel').style.display = "block";
@@ -263,7 +263,7 @@
 
         const password = prompt("Nhập mật khẩu truy cập Admin:");
         if (password === "khang22042016") {
-            sessionStorage.setItem("isAdmin", "true"); // Lưu trạng thái đăng nhập vào trình duyệt
+            sessionStorage.setItem("isAdmin", "true");
             document.getElementById('adminPanel').style.display = "block";
             buildAdminDashboard();
             alert("Xác thực thành công!");
@@ -272,10 +272,10 @@
         }
     }
 
-    // NÚT THOÁT ADMIN CHỦ ĐỘNG
+    // Thoát Admin chủ động
     function closeAdmin() {
         if (confirm("Bạn có chắc chắn muốn đăng xuất và đóng bảng điều khiển Admin không?")) {
-            sessionStorage.removeItem("isAdmin"); // Xóa hẳn trạng thái đăng nhập
+            sessionStorage.removeItem("isAdmin");
             document.getElementById('adminPanel').style.display = "none";
             alert("Đã đăng xuất Admin thành công.");
         }
@@ -333,11 +333,11 @@
         })
         .then(() => {
             alert("Cập nhật phương án thành công!");
-            location.reload(); // Reload xong vẫn giữ chế độ Admin
+            location.reload();
         });
     }
 
-    // 7. Lệnh xóa phiếu bầu
+    // 7. Lệnh xóa phiếu bầu mới đã sửa lỗi triệt để
     function clearAllVotes() {
         if (!confirm("Bạn có chắc chắn muốn XÓA SẠCH toàn bộ kết quả bầu chọn không?")) return;
         fetch(SCRIPT_URL, {
@@ -347,7 +347,7 @@
         })
         .then(() => {
             alert("Đã xóa sạch phiếu bầu!");
-            location.reload(); // Reload xong vẫn giữ chế độ Admin
+            location.reload();
         });
     }
 </script>

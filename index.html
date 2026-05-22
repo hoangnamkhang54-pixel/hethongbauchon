@@ -159,8 +159,8 @@
 </div>
 
 <script>
-    // Liên kết Web App mới của bạn đã được nhúng sẵn vào đây
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLeZT5Mmgpp4PFWyCPIL9CgYFRpKQbQ1EhuL-NDw14vEC468RClQF9r0f5ecibEaJh/exec";
+    // Liên kết Web App mới nhất của bạn đã được cấu hình tự động tại đây
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwZYzae34Y4SSmYC8gDtCChe19lrfwN5h1A1BGHYtq2DC-dlG6ypXt8PlIzgaYSKMam/exec";
     
     let globalData = { options: [], votes: [], topic: "" };
 
@@ -175,17 +175,18 @@
             const area = document.getElementById('optionsArea');
             if(globalData.options.length === 0 || (globalData.options.length === 1 && globalData.options[0] === "")) {
                 area.innerHTML = "<p style='color:red;'>Chưa có phương án nào. Hãy bấm Quản lý để thêm!</p>";
-            } else {
-                area.innerHTML = "";
-                globalData.options.forEach(opt => {
-                    if(opt.trim() !== "") {
-                        area.innerHTML += `
-                            <label class="option-item">
-                                <input type="radio" name="voteOption" value="${opt}"> ${opt}
-                            </label>`;
-                    }
-                });
+                return;
             }
+            
+            area.innerHTML = "";
+            globalData.options.forEach(opt => {
+                if(opt.trim() !== "") {
+                    area.innerHTML += `
+                        <label class="option-item">
+                            <input type="radio" name="voteOption" value="${opt}"> ${opt}
+                        </label>`;
+                }
+            });
             document.getElementById('newOptionsInput').value = globalData.options.join(", ");
             
             if (sessionStorage.getItem("isAdmin") === "true") {
@@ -317,7 +318,6 @@
 
     function updateOptions() {
         const dataInput = document.getElementById('newOptionsInput').value.trim();
-        if (!dataInput) return alert("Vui lòng nhập phương án trước khi lưu!");
         if (!confirm("Xác nhận thay đổi danh sách phương án?")) return;
 
         fetch(SCRIPT_URL, {
@@ -327,10 +327,9 @@
             body: `action=updateOptions&data=${encodeURIComponent(dataInput)}`
         })
         .then(() => {
-            alert("Đã gửi lệnh cập nhật danh sách phương án mới!");
+            alert("Cập nhật phương án thành công!");
             location.reload();
-        })
-        .catch(err => alert("Lỗi kết nối khi gửi phương án: " + err));
+        });
     }
 
     function clearAllVotes() {
@@ -343,7 +342,7 @@
             body: `action=clearVotes`
         })
         .then(() => {
-            alert("Đã xóa sạch toàn bộ phiếu bầu!");
+            alert("Đã gửi lệnh xóa sạch phiếu bầu thành công!");
             location.reload();
         })
         .catch(err => alert("Lỗi kết nối khi xóa: " + err));

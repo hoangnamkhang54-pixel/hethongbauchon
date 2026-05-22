@@ -159,12 +159,11 @@
 </div>
 
 <script>
-    // Link Web App mới nhất bạn vừa triển khai
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyaM83FEa-iZGL5XJNGwJBLv-FNkyF6Z0UkelwQg3pfowDjqPp4oCQNsNynIx6lV7cI/exec";
+    // URL Web App mới nhất bạn vừa gửi
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyiIsHUftK27Sb6LvUGRI7tqPeETFtz1-tf6XZEjxe3lID09sMZCA2h9O-KANUoQ6Yp/exec";
     
     let globalData = { options: [], votes: [], topic: "" };
 
-    // 1. Tải toàn bộ dữ liệu
     async function loadData() {
         try {
             const response = await fetch(SCRIPT_URL);
@@ -201,7 +200,6 @@
     
     loadData();
 
-    // 2. Gửi lệnh cập nhật Chủ đề mới
     function updateTopic() {
         const newTop = document.getElementById('topicInput').value.trim();
         if(!newTop) return alert("Vui lòng gõ chủ đề!");
@@ -210,9 +208,11 @@
         statusDiv.className = "info";
         statusDiv.innerText = "Đang lưu chủ đề mới...";
 
-        fetch(SCRIPT_URL + "?action=updateTopic&topic=" + encodeURIComponent(newTop), {
+        fetch(SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors'
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=updateTopic&topic=${encodeURIComponent(newTop)}`
         })
         .then(() => {
             alert("Cập nhật chủ đề thành công!");
@@ -221,7 +221,6 @@
         .catch(() => alert("Lỗi khi đổi chủ đề!"));
     }
 
-    // 3. Xử lý gửi bình chọn
     function submitVote() {
         const nameInput = document.getElementById('voterName').value.trim();
         const selectedOption = document.querySelector('input[name="voteOption"]:checked');
@@ -240,7 +239,7 @@
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `nguoiBinhChon=${encodeURIComponent(nameInput)}&luaChon=${encodeURIComponent(selectedOption.value)}&action=vote`
+            body: `action=vote&nguoiBinhChon=${encodeURIComponent(nameInput)}&luaChon=${encodeURIComponent(selectedOption.value)}`
         })
         .then(() => {
             statusDiv.className = "success";
@@ -253,7 +252,6 @@
         });
     }
 
-    // 4. Vào Admin
     function openAdmin() {
         if (sessionStorage.getItem("isAdmin") === "true") {
             document.getElementById('adminPanel').style.display = "block";
@@ -272,7 +270,6 @@
         }
     }
 
-    // Thoát Admin chủ động
     function closeAdmin() {
         if (confirm("Bạn có chắc chắn muốn đăng xuất và đóng bảng điều khiển Admin không?")) {
             sessionStorage.removeItem("isAdmin");
@@ -281,7 +278,6 @@
         }
     }
 
-    // 5. Tính toán dữ liệu thống kê
     function buildAdminDashboard() {
         const totalVotes = globalData.votes.length;
         let countMap = {};
@@ -320,7 +316,6 @@
         }
     }
 
-    // 6. Admin cập nhật phương án mới
     function updateOptions() {
         const dataInput = document.getElementById('newOptionsInput').value.trim();
         if (!confirm("Xác nhận thay đổi danh sách phương án?")) return;
@@ -329,7 +324,7 @@
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `data=${encodeURIComponent(dataInput)}&action=updateOptions`
+            body: `action=updateOptions&data=${encodeURIComponent(dataInput)}`
         })
         .then(() => {
             alert("Cập nhật phương án thành công!");
@@ -337,18 +332,20 @@
         });
     }
 
-    // 7. Lệnh xóa phiếu bầu mới đã sửa lỗi triệt để
     function clearAllVotes() {
         if (!confirm("Bạn có chắc chắn muốn XÓA SẠCH toàn bộ kết quả bầu chọn không?")) return;
+        
         fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `action=clearVotes`
         })
         .then(() => {
-            alert("Đã xóa sạch phiếu bầu!");
+            alert("Đã xóa sạch toàn bộ phiếu bầu!");
             location.reload();
-        });
+        })
+        .catch(err => alert("Lỗi kết nối khi xóa: " + err));
     }
 </script>
 

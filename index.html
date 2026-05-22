@@ -231,18 +231,21 @@
         statusDiv.innerText = "Đang gửi dữ liệu lên hệ thống...";
 
         const targetUrl = `${SCRIPT_URL}?action=vote&nguoiBinhChon=${encodeURIComponent(nameInput)}&luaChon=${encodeURIComponent(selectedOption.value)}`;
+        
         fetch(targetUrl, { method: 'POST', mode: 'no-cors' })
         .then(() => {
             statusDiv.className = "success";
             statusDiv.innerText = `Thành công! Hệ thống đã ghi nhận lựa chọn của bạn.`;
-            loadData(); 
+            // Chờ 1.2 giây để Google Sheets cập nhật xong xuôi dữ liệu rồi mới load lại danh sách
+            setTimeout(() => {
+                loadData();
+            }, 1200);
         })
         .catch(() => {
             statusDiv.className = "error";
             statusDiv.innerText = "Lỗi kết nối hệ thống!";
         });
     }
-
     function openAdmin() {
         if (sessionStorage.getItem("isAdmin") === "true") {
             document.getElementById('adminPanel').style.display = "block";

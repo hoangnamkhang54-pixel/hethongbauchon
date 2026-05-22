@@ -159,8 +159,8 @@
 </div>
 
 <script>
-    // Đường dẫn Web App Apps Script mới nhất của bạn
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGaCY82wVN6-mXTg2y5ieG8piSuyCAAZrIufc5Fl1gyXn7WtkQ3FLxaNzApxGIYJL6/exec";
+    // Liên kết Web App mới của bạn đã được nhúng sẵn vào đây
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLeZT5Mmgpp4PFWyCPIL9CgYFRpKQbQ1EhuL-NDw14vEC468RClQF9r0f5ecibEaJh/exec";
     
     let globalData = { options: [], votes: [], topic: "" };
 
@@ -327,7 +327,7 @@
             body: `action=updateOptions&data=${encodeURIComponent(dataInput)}`
         })
         .then(() => {
-            alert("Cập nhật danh sách phương án thành công!");
+            alert("Đã gửi lệnh cập nhật danh sách phương án mới!");
             location.reload();
         })
         .catch(err => alert("Lỗi kết nối khi gửi phương án: " + err));
